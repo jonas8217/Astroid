@@ -21,11 +21,11 @@ class astroid:
         self.size -= 1
 
         if self.size == 0:
-            return None
+            return 0
         else:
             dir = random(0.0,2*pi)
             self.vel = [cos(dir),sin(dir)]
             self.vel = self.vel*random(1.0,3)
-            return [self.size]
+            return self.size
 
 

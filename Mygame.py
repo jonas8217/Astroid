@@ -1,6 +1,8 @@
 import pygame
-from math import pi,cos,sin
+from math import pi,cos,sin,sqrt
 from random import randint,random
+from Astroid import *
+from Projectile import *
 
 
 class Game:
@@ -11,10 +13,12 @@ class Game:
                 #State 2: Pause
                 self.spd = 0.0
                 self.ro = 0
-                self.y = 300
                 self.x = 400
+                self.y = 300
                 self.points = 0
                 self.vel = [0.0,0.0]
+                self.astr = []
+                self.pjct = []
                 
 
         def tick(self, pg, pressed):
@@ -29,12 +33,28 @@ class Game:
                                 self.ro -= 4
                         if pressed[pg.K_RIGHT]:
                                 self.ro += 4
+                        
+                        if self.vel[0] > 0:
+                                self.vel[0] -= self.vel[0]*0.1
+                        if self.vel[1] > 0:
+                                self.vel[1] -= self.vel[1]*0.1
+                        if self.vel[0] < 0:
+                                self.vel[0] += self.vel[0]*0.1
+                        if self.vel[1] < 0:
+                                self.vel[1] += self.vel[1]*0.1
 
                         dir = mapFromTo(self.ro,0,360,0.0,2*pi)
                         self.vel = [cos(dir)*self.spd,sin(dir)*self.spd]
                         print(self.vel)
                         self.x += self.vel[0]
                         self.y += self.vel[1]
+
+                        for i in range(len(self.pjct)):
+                                for i in range(len(self.astr)):
+                                        if dist(self.pjct.x,self.astr.x,self.pjct.y,self.astr.y) > astr.size*5:
+                                                if self.astr.split > 0:
+
+
 
 
         def start_game(self):
@@ -59,8 +79,14 @@ class Game:
                         return False
 
 def mapFromTo(x,a,b,c,d):
-   y = (x-a)/(b-a)*(d-c)+c
-   return y
+        y = (x-a)/(b-a)*(d-c)+c
+        return y
+
+def dist(x1,x2,y1,y2):
+        d = sqrt((x1-x2)**2+(y1-y2)**2)
+        return d
+
+
 
 def draw_game():
         if game.state == 0:
@@ -69,6 +95,12 @@ def draw_game():
         elif game.state == 1:
                 screen.fill((0, 10, 20))
                 pygame.draw.rect(screen, (10, 123, 50), pygame.Rect(game.x, game.y, 50, 50))
+                if len(game.astr) > 0:
+                        for i in range(len(game.astr)):
+                                pygame.draw.circle(screen, (255, 255, 255), pygame.Rect(game.astr[i].x, game.astr[i].y, game.astr[i].size*5, width=2))
+                if len(game.pjct) > 0:
+                        for i in range(len(game.pjct)):
+                                pygame.draw.circle(screen, (255, 255, 255), pygame.Rect(game.pjct[i].x, game.pjct[i].y, 1, width=0))
                 screen.blit(myfont.render("Points: {}".format(game.points), 1, (255, 255, 0)), (100, 100))
         elif game.state == 2:
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(380, 280, 80, 50))
