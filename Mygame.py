@@ -20,7 +20,6 @@ class Game:
                 self.astr = []
                 self.pjct = []
                 self.notp = True
-                #self.ship_point_list = 
 
                 
 
@@ -188,12 +187,15 @@ def vec_length(vec):
         l = sqrt(vec[0]**2+vec[1]**2)
         return l
 
-"""
-def Ship_pointlist(ro):
-        A = 
-        B = (-5,5)
-        C = (10,0)
-"""
+
+def Ship_pointlist(ro,x,y):
+        l = [[8,135],[8,225],[8,0]]
+        ship_point_list = []
+        for i in range(3):
+                dir = mapFromTo(ro+l[i][1],0,360,0.0,2*pi)
+                P = [x+cos(dir)*l[i][0],y+sin(dir)*l[i][0]]
+                ship_point_list.append(P)
+        return ship_point_list
 
 
 
@@ -204,7 +206,7 @@ def draw_game():
         elif game.state == 1:
                 screen.fill((0, 10, 20))
                 #pygame.transform.rotate(screen, game.ro % 360)
-                pygame.draw.polygon(screen, (255,255,255), [(-5,-5),(-5,5),(10,0)], 1)
+                pygame.draw.polygon(screen, (255,255,255), Ship_pointlist(game.ro,game.x,game.y), 1)
 
                 if len(game.astr) > 0:
                         for i in range(len(game.astr)):
