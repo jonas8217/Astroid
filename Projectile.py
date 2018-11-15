@@ -5,7 +5,10 @@ class projectile:
         self.x = x
         self.y = y
         self.vel = vel
+        self.t = 0
 
     def move(self):
+        self.vel[0] *= 0.995
+        self.vel[1] *= 0.995
         self.x += self.vel[0]
         self.y += self.vel[1]

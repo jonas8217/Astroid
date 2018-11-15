@@ -23,14 +23,15 @@ class astroid:
         self.size -= 1
 
         if self.size == 0:
-            return 0
+            return None
         else:
             dir = random()*2*pi
             self.vel = [cos(dir),sin(dir)]
-            sp = mapFromTo(random(),0.0,1.0,1.0,3)
+            sp = mapFromTo(random(),0.0,1.0,1.0,2.0)
             self.vel[0] = self.vel[0]*sp
             self.vel[1] = self.vel[1]*sp
-            return self.size
+            a = astroid(self.x,self.y,self.size)
+            return a
 
 def mapFromTo(x,a,b,c,d):
         y = (x-a)/(b-a)*(d-c)+c

@@ -20,9 +20,14 @@ class Game:
                 self.astr = []
                 self.pjct = []
                 self.notp = True
+                #self.ship_point_list = 
+
                 
 
                 self.astr.append(astroid(100,100,3))
+                self.astr.append(astroid(100,100,1))
+                self.astr.append(astroid(100,100,2))
+
 
         def tick(self, pg, pressed):
                 if self.state == 1:
@@ -42,23 +47,16 @@ class Game:
                         if pressed[pg.K_SPACE] and self.notp:
                                 self.notp = False
                                 shoot(self.pjct,self.x,self.y,self.ro)
-                        else:
+                        elif not pressed[pg.K_SPACE]:
                                 self.notp = True
 
-                        #ship_movement_vals
-                        if self.vel[0] > 0:
-                                self.vel[0] -= self.vel[0]*0.1
-                        if self.vel[1] > 0:
-                                self.vel[1] -= self.vel[1]*0.1
-                        if self.vel[0] < 0:
-                                self.vel[0] += self.vel[0]*0.1
-                        if self.vel[1] < 0:
-                                self.vel[1] += self.vel[1]*0.1
+                        #ship_movement_de-acc
+                        self.spd *= 0.99
                         
                         #ship_movement_calc
                         dir = mapFromTo(self.ro,0,360,0.0,2*pi)
                         self.vel = [cos(dir)*self.spd,sin(dir)*self.spd]
-                        print(self.vel)
+                        #print(self.vel)
 
                         #movement_execution
                         self.x += self.vel[0]
@@ -66,23 +64,78 @@ class Game:
                         move_astroids(self.astr)
                         move_projectiles(self.pjct)
 
+                        #ship_rotation
+
+
+                        #looping
+                        ##player
+                        if self.x < 10:
+                                self.x = float(790)
+                        elif self.x > 790:
+                                self.x = float(10)
+                        if self.y < 10:
+                                self.y = float(590)
+                        elif self.y > 590:
+                                self.y = float(10)
+
+                        ##astroids
+                        for i in range(len(self.astr)):
+                                if self.astr[i].x < 10:
+                                        self.astr[i].x = float(790)
+                                elif self.astr[i].x > 790:
+                                        self.astr[i].x = float(10)
+                                if self.astr[i].y < 10:
+                                        self.astr[i].y = float(590)
+                                elif self.astr[i].y > 590:
+                                        self.astr[i].y = float(10)
+                        ##projectiles
+                        for i in range(len(self.pjct)):
+                                if self.pjct[i].x < 10:
+                                        self.pjct[i].x = float(790)
+                                elif self.pjct[i].x > 790:
+                                        self.pjct[i].x = float(10)
+                                if self.pjct[i].y < 10:
+                                        self.pjct[i].y = float(590)
+                                elif self.pjct[i].y > 590:
+                                        self.pjct[i].y = float(10)
+                        
+                        #delete_projectieles
+                        plist = []
+                        for i in range(len(self.pjct)):
+                                if vec_length(self.pjct[i].vel) < 0.1:
+                                        plist.append(i)
+                        for i in range(len(plist)):
+                                del plist[i]
+                                del self.pjct[i]        
+
                         #collision
                         self.hit(self.pjct,self.astr)
+
 
                         
 
 
         def hit(self,p,a):
+                plist = []
+                alist = []
                 if len(p)*len(a) > 0:
-                        for i in range(len(p)):
-                                for j in range(len(a)):
-                                        if dist(p[i].x,a[j].x,p[i].y,a[j].y) > a[j].size*5:
-                                                del p[i]
-                                                s = a[j].split()
-                                                if s > 0:
-                                                        a.append(astroid(a[j].x,a[j].y,a[j].size))
+                        for i in range(0,len(p)):
+                                for j in range(0,len(a)):
+                                        if dist(p[i].x,a[j].x,p[i].y,a[j].y) < a[j].size*10:
+                                                plist.append(i)
+                                                split_a = a[j].split()
+                                                if split_a != None:
+                                                        a.append(split_a)
                                                 else:
-                                                        del a[j]
+                                                        alist.append(j)
+                for i in plist:
+                        del self.pjct[i]
+                        for j in range(len(plist)-1):
+                                del plist[j]
+                for i in alist:
+                        del self.astr[i]
+                        for j in range(len(alist)-1):
+                                del alist[j]
         
         def collision(self):
                 pass
@@ -128,8 +181,19 @@ def mapFromTo(x,a,b,c,d):
         return y
 
 def dist(x1,x2,y1,y2):
-        d = sqrt((x1-x2)**2+(y1-y2)**2)
+        d = sqrt(((x1-x2)**2)+((y1-y2)**2))
         return d
+
+def vec_length(vec):
+        l = sqrt(vec[0]**2+vec[1]**2)
+        return l
+
+"""
+def Ship_pointlist(ro):
+        A = 
+        B = (-5,5)
+        C = (10,0)
+"""
 
 
 
@@ -139,10 +203,12 @@ def draw_game():
                 screen.blit(myfont.render("MENU", 1, (255, 255, 255)), (400, 300))
         elif game.state == 1:
                 screen.fill((0, 10, 20))
-                pygame.draw.rect(screen, (10, 123, 50), pygame.Rect(game.x, game.y, 50, 50))
+                #pygame.transform.rotate(screen, game.ro % 360)
+                pygame.draw.polygon(screen, (255,255,255), [(-5,-5),(-5,5),(10,0)], 1)
+
                 if len(game.astr) > 0:
                         for i in range(len(game.astr)):
-                                pygame.draw.circle(screen, (255, 255, 255), (int(game.astr[i].x), int(game.astr[i].y)), game.astr[i].size*5, 2)
+                                pygame.draw.circle(screen, (255, 255, 255), (int(game.astr[i].x), int(game.astr[i].y)), game.astr[i].size*10, 2)
                 if len(game.pjct) > 0:
                         for i in range(len(game.pjct)):
                                 pygame.draw.circle(screen, (255, 255, 255), (int(game.pjct[i].x), int(game.pjct[i].y)), 1, 0)
