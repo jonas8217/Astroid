@@ -20,22 +20,28 @@ class Game:
                 self.astr = []
                 self.pjct = []
                 self.notp = True
+                self.counter = 0
 
                 
 
                 self.astr.append(astroid(100,100,3))
-                self.astr.append(astroid(100,100,1))
-                self.astr.append(astroid(100,100,2))
+                self.astr.append(astroid(400,100,1))
+                self.astr.append(astroid(700,100,2))
+                self.astr.append(astroid(100,500,3))
+                self.astr.append(astroid(400,500,1))
+                self.astr.append(astroid(700,500,2))
 
 
         def tick(self, pg, pressed):
                 if self.state == 1:
                         
+                        #ship_movement_calc
+                        dir = mapFromTo(self.ro,0,360,0.0,2*pi)
+
                         #controls
-                        if pressed[pg.K_UP] and self.spd < 5:
-                                self.spd += 0.4
-                        if pressed[pg.K_DOWN] and self.spd > 0:
-                                self.spd -= 0.1
+                        if pressed[pg.K_UP] and vec_length(self.vel) < 8:
+                                self.vel[0] += cos(dir)*0.2
+                                self.vel[1] += sin(dir)*0.2
                         if self.spd < 0:
                                 self.spd = 0
                         if pressed[pg.K_LEFT]:
@@ -50,21 +56,15 @@ class Game:
                                 self.notp = True
 
                         #ship_movement_de-acc
-                        self.spd *= 0.99
+                        self.vel[0] *= 0.985
+                        self.vel[1] *= 0.985
                         
-                        #ship_movement_calc
-                        dir = mapFromTo(self.ro,0,360,0.0,2*pi)
-                        self.vel = [cos(dir)*self.spd,sin(dir)*self.spd]
-                        #print(self.vel)
 
                         #movement_execution
                         self.x += self.vel[0]
                         self.y += self.vel[1]
                         move_astroids(self.astr)
                         move_projectiles(self.pjct)
-
-                        #ship_rotation
-
 
                         #looping
                         ##player
@@ -101,32 +101,39 @@ class Game:
                         #delete_projectieles
                         plist = []
                         for i in range(len(self.pjct)):
-                                if vec_length(self.pjct[i].vel) < 0.1:
+                                if vec_length(self.pjct[i].vel) < 0.4:
                                         plist.append(i)
                         for i in range(len(plist)):
                                 del plist[i]
                                 del self.pjct[i]        
 
                         #collision
-                        self.hit(self.pjct,self.astr)
+                        self.points += self.hit(self.pjct,self.astr)
+                        if collision(self.x,self.y,self.astr):
+                                pass
 
 
-                        
+        def loss(self):
+                pass
 
 
         def hit(self,p,a):
+                points = 0
                 plist = []
                 alist = []
                 if len(p)*len(a) > 0:
-                        for i in range(0,len(p)):
-                                for j in range(0,len(a)):
+                        for i in range(len(p)):
+                                for j in range(len(a)):
                                         if dist(p[i].x,a[j].x,p[i].y,a[j].y) < a[j].size*10:
                                                 plist.append(i)
                                                 split_a = a[j].split()
                                                 if split_a != None:
                                                         a.append(split_a)
+                                                        points += 100*(split_a.size+1)
                                                 else:
                                                         alist.append(j)
+                                                        points += 100
+                                                 
                 for i in plist:
                         del self.pjct[i]
                         for j in range(len(plist)-1):
@@ -135,9 +142,7 @@ class Game:
                         del self.astr[i]
                         for j in range(len(alist)-1):
                                 del alist[j]
-        
-        def collision(self):
-                pass
+                return points
 
 
         def start_game(self):
@@ -171,8 +176,16 @@ def move_projectiles(p):
 
 def shoot(p,x,y,ro):
         dir = mapFromTo(ro,0,360,0.0,2*pi)
-        vel = [cos(dir)*4,sin(dir)*4]
-        p.append(projectile(x,y,vel))
+        vel = [cos(dir)*8,sin(dir)*8]
+        p.append(projectile(x+cos(dir)*8,y+sin(dir)*8,vel))
+
+def collision(x,y,a):
+        hit = False
+        for i in range(len(a)-1):
+                di = dist(x,a[i].x,y,a[i].y)
+                if di < 4+a[i].size*10:
+                        hit = True
+        return hit
 
 
 def mapFromTo(x,a,b,c,d):
