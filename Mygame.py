@@ -11,11 +11,12 @@ class Game:
                 #State 0: Menu
                 #State 1: Game
                 #State 2: Pause
-                self.spd = 0.0
                 self.ro = 0
                 self.x = 400
                 self.y = 300
                 self.points = 0
+                self.lives = 5
+                self.stage = 1
                 self.vel = [0.0,0.0]
                 self.astr = []
                 self.pjct = []
@@ -35,25 +36,28 @@ class Game:
         def tick(self, pg, pressed):
                 if self.state == 1:
                         
-                        #ship_movement_calc
+                        #stage
+                        if len(self.astr) == 0:
+                                self.newStage()
+
+
+                        #ship_direction_calc
                         dir = mapFromTo(self.ro,0,360,0.0,2*pi)
 
                         #controls
                         if pressed[pg.K_UP] and vec_length(self.vel) < 8:
                                 self.vel[0] += cos(dir)*0.2
                                 self.vel[1] += sin(dir)*0.2
-                        if self.spd < 0:
-                                self.spd = 0
                         if pressed[pg.K_LEFT]:
                                 self.ro -= 4
                         if pressed[pg.K_RIGHT]:
                                 self.ro += 4
-                        
-                        if pressed[pg.K_SPACE] and self.notp:
-                                self.notp = False
+                        self.counter += 1
+                        if pressed[pg.K_SPACE] and self.counter >= 30:
+                                self.counter = 0
                                 shoot(self.pjct,self.x,self.y,self.ro)
-                        elif not pressed[pg.K_SPACE]:
-                                self.notp = True
+                        #elif not pressed[pg.K_SPACE]:
+                        #        self.notp = True
 
                         #ship_movement_de-acc
                         self.vel[0] *= 0.985
@@ -110,8 +114,21 @@ class Game:
                         #collision
                         self.points += self.hit(self.pjct,self.astr)
                         if collision(self.x,self.y,self.astr):
-                                pass
+                                self.loss()
 
+        def newStage(self):
+                self.stage += 1
+                newAstr = self.stage*1.5+4
+                for i in range(int(newAstr)):
+                        side = i % 4
+                        if side == 0:
+                                self.astr.append(astroid(50,50+randint(0,700),3))
+                        if side == 1:
+                                self.astr.append(astroid(50+randint(0,500),50,3))
+                        if side == 2:
+                                self.astr.append(astroid(750,50+randint(0,700),3))
+                        if side == 3:
+                                self.astr.append(astroid(50+randint(0,500),550,3))
 
         def loss(self):
                 pass
@@ -133,17 +150,29 @@ class Game:
                                                 else:
                                                         alist.append(j)
                                                         points += 100
-                                                 
-                for i in plist:
-                        del self.pjct[i]
-                        for j in range(len(plist)-1):
-                                del plist[j]
-                for i in alist:
-                        del self.astr[i]
-                        for j in range(len(alist)-1):
-                                del alist[j]
-                return points
 
+                seen = set()
+                uniq = []
+                for x in plist:
+                        if x not in seen:
+                                uniq.append(x)
+                                seen.add(x)
+                uniq.sort()
+                for i in uniq[::-1]:
+                        print('p',plist,uniq[::-1])
+                        del self.pjct[i]
+                
+                seen = set()
+                uniq = []
+                for x in alist:
+                        if x not in seen:
+                                uniq.append(x)
+                                seen.add(x)
+                uniq.sort()
+                for i in uniq[::-1]:
+                        print('a',alist,uniq[::-1])
+                        del self.astr[i]
+                return points
 
         def start_game(self):
                 if self.state == 0:
@@ -223,11 +252,16 @@ def draw_game():
 
                 if len(game.astr) > 0:
                         for i in range(len(game.astr)):
-                                pygame.draw.circle(screen, (255, 255, 255), (int(game.astr[i].x), int(game.astr[i].y)), game.astr[i].size*10, 2)
+                                try:
+                                        pygame.draw.circle(screen, (255, 255, 255), (int(game.astr[i].x), int(game.astr[i].y)), game.astr[i].size*10, 2)
+                                except:
+                                        print(game.astr.index(game.astr[i]),len(game.astr))
                 if len(game.pjct) > 0:
                         for i in range(len(game.pjct)):
                                 pygame.draw.circle(screen, (255, 255, 255), (int(game.pjct[i].x), int(game.pjct[i].y)), 1, 0)
-                screen.blit(myfont.render("Points: {}".format(game.points), 1, (255, 255, 0)), (100, 100))
+                screen.blit(myfont.render("Points: {}".format(game.points), 1, (255, 255, 0)), (20, 20))
+                screen.blit(myfont.render("Lives: {}".format(game.lives), 1, (255, 255, 0)), (20, 35))
+                screen.blit(myfont.render("Stage: {}".format(game.stage), 1, (255, 255, 0)), (20, 50))
         elif game.state == 2:
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(380, 280, 80, 50))
                 screen.blit(myfont.render("PAUSE", 1, (255, 255, 255)), (400, 300))
