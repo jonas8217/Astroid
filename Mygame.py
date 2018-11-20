@@ -3,12 +3,14 @@ from math import pi,cos,sin,sqrt
 from random import randint
 from Astroid import astroid
 from Projectile import projectile
-import pickle
 import pygame_textinput
+from highscoreLogger import Logger
 
 
 class Game:
         def __init__(self):
+                self.logger = Logger()
+
                 self.state = 0
                 #State 0: Menu
                 #State 1: Game
@@ -18,14 +20,14 @@ class Game:
                 self.x = 400
                 self.y = 300
                 self.points = 0
-                self.shield = 1
+                self.shield = 3
                 self.stage = 0
                 self.vel = [0.0,0.0]
                 self.astr = []
                 self.pjct = []
                 self.counter = 0
-
-
+                self.pause_counter = 0
+                self.dead = False
 
 
 
@@ -33,8 +35,15 @@ class Game:
                 if self.state == 1:
 
                         #stage
-                        if len(self.astr) == 0:
-                                self.newStage()
+                        if len(self.astr) == 0 and self.dead == False:
+                                self.pause_counter += 1
+                                if self.pause_counter >= 40:
+                                        self.pause_counter = 0
+                                        self.newStage()
+
+                        #check_if_dead
+                        if self.dead:
+                                self.game_shieldloss_init()
 
 
                         #ship_direction_calc
@@ -111,6 +120,10 @@ class Game:
                         if collision(self.x,self.y,self.astr):
                                 self.ship_hit()
 
+                if self.state == 4:
+                        self.reload()
+
+
         def newStage(self):
                 self.stage += 1
                 self.pjct = []
@@ -127,13 +140,11 @@ class Game:
                                 self.astr.append(astroid(50+randint(0,500),550,3))
 
         def ship_hit(self):
+                self.shield -= 1
                 if self.shield > 0:
-                        self.shield -= 1
                         self.game_shieldloss_init()
                 else:
-                        self.save_highscore()
-
-                        #self.reload() #todo
+                        self.highscore_input()
 
 
 
@@ -163,42 +174,82 @@ class Game:
                 return points
 
         def game_shieldloss_init(self):
-                self.x = 400
-                self.y = 300
-                self.ro = 0
-                self.vel = [0.0,0.0]
-                self.pjct = []
-                for i in range(len(self.astr)):
-                        side = i % 4
-                        if side == 0:
-                                self.astr[i].x,self.astr[i].y = (50,50+randint(0,700))
-                        if side == 1:
-                                self.astr[i].x,self.astr[i].y = (50+randint(0,500),50)
-                        if side == 2:
-                                self.astr[i].x,self.astr[i].y = (750,50+randint(0,700))
-                        if side == 3:
-                                self.astr[i].x,self.astr[i].y = (50+randint(0,500),550)
+                self.pause_counter += 1
+                if not self.dead:
+                        self.x = 400
+                        self.y = 300
+                        self.ro = 0
+                        self.vel = [0.0,0.0]
 
-        def save_highscore(self):
-                self.state = 3
+                        self.pjct = []
+                        self.temp_astr = self.astr.copy()
+                        self.astr = []
+                        self.dead = True
+                elif self.pause_counter >= 40:
+                        self.pause_counter = 0
+                        self.dead = False
+                        for i in range(len(self.temp_astr)):
+                                side = i % 4
+                                if side == 0:
+                                        self.temp_astr[i].x,self.temp_astr[i].y = (50,50+randint(0,700))
+                                if side == 1:
+                                        self.temp_astr[i].x,self.temp_astr[i].y = (50+randint(0,500),50)
+                                if side == 2:
+                                        self.temp_astr[i].x,self.temp_astr[i].y = (750,50+randint(0,700))
+                                if side == 3:
+                                        self.temp_astr[i].x,self.temp_astr[i].y = (50+randint(0,500),550)
+                        self.astr = self.temp_astr.copy()
+
+        def save_highscore(self,name):
+                """ Pickle removed because of better option: server database
                 with open('highscore.txt', 'rb') as f:
                         scores = pickle.load(f)  #score = {'name':'','score':0,'stage':0}
                 for i in range(len(scores)):
                         if self.points > scores[i]['score']:
-                                self.highscore_input()
-                                newHigh = {'name':str(i+1)+'.','score':self.points,'stage':self.stage}
+                                newHigh = {'name':str(name),'score':self.points,'stage':self.stage}
                                 scores.insert(i,newHigh)
                                 break
                 scores = scores[:10]
                 with open('highscore.txt', 'wb') as f:
                         pickle.dump(scores, f)
                 print(scores, len(scores))
+                """
+                if self.points > 0:
+                        self.logger.post_score('Astroid',self.points,str(name),self.stage)
+
+                scores = []
+                for s in self.logger.get_scores('Astroid'):
+                        scores.append({'Name':s['Opt1'],'Score':s['Score'],'Stage':s['Opt2']})
+                scores = sorted(scores, key=lambda scores: scores['Score'], reverse=True)
+                #print(scores)
+
+
+                self.state = 4
+
+        def reload(self,state = 0):
+                self.state = state
+                self.ro = 0
+                self.x = 400
+                self.y = 300
+                self.points = 0
+                self.shield = 3
+                self.stage = 0
+                self.vel = [0.0,0.0]
+                self.astr = []
+                self.pjct = []
+                self.counter = 0
+
+        def get_highscores(self):
+                scores = []
+                for s in self.logger.get_scores('Astroid'):
+                        scores.append({'Name':s['Opt1'],'Score':s['Score'],'Stage':s['Opt2']})
+                return sorted(scores, key=lambda scores: scores['Score'], reverse=True)
 
 
         def start_game(self):
                 if self.state == 0:
                         self.state = 1
-                        self.points = 0
+                        self.reload(1)
 
         def end_game(self):
                 if self.state > 0:
@@ -207,7 +258,7 @@ class Game:
         def toggle_pause(self):
                 if self.state == 1:
                         self.state = 2
-                else:
+                elif self.state == 2:
                         self.state = 1
 
         def started(self):
@@ -281,8 +332,18 @@ def Ship_pointlist(ro,x,y):
 
 def draw_game():
         if game.state == 0:
+                pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(0, 0, 800, 600))
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(380, 280, 80, 50))
                 screen.blit(myfont.render("MENU", 1, (255, 255, 255)), (400, 300))
+                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(260, 400, 300, 120))
+                screen.blit(myfont.render("Controls:", 1, (255, 255, 255)), (270, 405))
+                screen.blit(myfont.render("Thrust: Up Arrow", 1, (255, 255, 255)), (280, 420))
+                screen.blit(myfont.render("Turn: Left and Right Arrows", 1, (255, 255, 255)), (280, 435))
+                screen.blit(myfont.render("Shoot: Spacebar", 1, (255, 255, 255)), (280, 450))
+                screen.blit(myfont.render("Pause/view Highscores: p", 1, (255, 255, 255)), (280, 465))
+                screen.blit(myfont.render("Exit Game/New Game: ESC", 1, (255, 255, 255)), (280, 480))
+                screen.blit(myfont.render("Sumbmit Score: Enter", 1, (255, 255, 255)), (280, 495))
+
         elif game.state == 1:
                 screen.fill((0, 10, 20))
                 #pygame.transform.rotate(screen, game.ro % 360)
@@ -303,12 +364,17 @@ def draw_game():
         elif game.state == 2:
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(380, 280, 80, 50))
                 screen.blit(myfont.render("PAUSE", 1, (255, 255, 255)), (400, 300))
+                scores = game.get_highscores()
+                scores = scores[:10]
+                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(580, 10, 200, 40+15*len(scores)))
+                screen.blit(myfont.render("Highscores:", 1, (255, 255, 0)), (600, 20))
+                for i,j in enumerate(scores):
+                        screen.blit(myfont.render(str(j['Name'])+': '+str(j['Score'])+' at '+str(j['Stage']), 1, (255, 255, 0)), (600, 35+i*15))
         elif game.state == 3:
                 screen.fill((225, 225, 225))
-                events = pygame.event.get()
-                textinput.update(events)
+                if textinput.update(events):
+                        game.save_highscore(textinput.get_text())
                 screen.blit(textinput.get_surface(), (10, 10))
-                
 
 
 
@@ -327,7 +393,8 @@ clock = pygame.time.Clock()
 textinput = pygame_textinput.TextInput()
 
 while not done:
-        for event in pygame.event.get():
+        events = pygame.event.get()
+        for event in events:
                 if event.type == pygame.QUIT:
                         done = True
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
@@ -341,7 +408,7 @@ while not done:
         pressed = pygame.key.get_pressed()
 
         game.tick(pygame, pressed)
-        
+
         draw_game()
         pygame.display.flip()
         clock.tick(60)

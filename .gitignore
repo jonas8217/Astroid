@@ -92,3 +92,4 @@ ENV/
 
 main.py
 __pycache__/
+test.py
