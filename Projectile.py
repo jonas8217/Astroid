@@ -1,4 +1,4 @@
-from math import pi,cos,sin
+
 
 class projectile:
     def __init__(self,x,y,vel):
