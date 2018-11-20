@@ -3,6 +3,7 @@ from math import pi,cos,sin,sqrt
 from random import randint,random
 from Astroid import astroid
 from Projectile import projectile
+import pickle
 
 
 class Game:
@@ -15,8 +16,8 @@ class Game:
                 self.x = 400
                 self.y = 300
                 self.points = 0
-                self.lives = 5
-                self.stage = 1
+                self.shield = 1
+                self.stage = 0
                 self.vel = [0.0,0.0]
                 self.astr = []
                 self.pjct = []
@@ -24,12 +25,6 @@ class Game:
 
                 
 
-                self.astr.append(astroid(100,100,3))
-                self.astr.append(astroid(400,100,1))
-                self.astr.append(astroid(700,100,2))
-                self.astr.append(astroid(100,500,3))
-                self.astr.append(astroid(400,500,1))
-                self.astr.append(astroid(700,500,2))
 
 
         def tick(self, pg, pressed):
@@ -52,7 +47,7 @@ class Game:
                         if pressed[pg.K_RIGHT]:
                                 self.ro += 5
                         self.counter += 1
-                        if pressed[pg.K_SPACE] and self.counter >= 30:
+                        if pressed[pg.K_SPACE] and self.counter >= 25:
                                 self.counter = 0
                                 shoot(self.pjct,self.x,self.y,self.ro)
 
@@ -116,6 +111,7 @@ class Game:
 
         def newStage(self):
                 self.stage += 1
+                self.pjct = []
                 newAstr = self.stage*1.5+4
                 for i in range(int(newAstr)):
                         side = i % 4
@@ -129,11 +125,11 @@ class Game:
                                 self.astr.append(astroid(50+randint(0,500),550,3))
 
         def ship_hit(self):
-                if self.lives > 0:
-                        self.lives -= 1
-                        self.game_init()
+                if self.shield > 0:
+                        self.shield -= 1
+                        self.game_shieldloss_init()
                 else:
-                        pass
+                        self.save_highscore()
 
 
 
@@ -155,20 +151,36 @@ class Game:
                                                         points += 100
 
                 for i in uniq(plist)[::-1]:
-                        #print('p',plist,uniq[::-1])
                         del self.pjct[i]
+                
                 for i in uniq(alist)[::-1]:
-                        #print('a',alist,uniq[::-1])
                         del self.astr[i]
+                
                 return points
 
-        def game_init(self):
+        def game_shieldloss_init(self):
                 self.x = 400
                 self.y = 300
                 self.ro = 0
                 self.vel = [0.0,0.0]
-                self.astr = []
                 self.pjct = []
+                for i in range(len(self.astr)):
+                        side = i % 4
+                        if side == 0:
+                                self.astr[i].x,self.astr[i].y = (50,50+randint(0,700))
+                        if side == 1:
+                                self.astr[i].x,self.astr[i].y = (50+randint(0,500),50)
+                        if side == 2:
+                                self.astr[i].x,self.astr[i].y = (750,50+randint(0,700))
+                        if side == 3:
+                                self.astr[i].x,self.astr[i].y = (50+randint(0,500),550)
+
+        def save_highscore(self):
+                with open('highscore.txt', 'rb') as f:
+                        scores = pickle.load(f)
+                print(scores[0][0])
+                with open('highscore.txt', 'wb') as f:
+                        pickle.dump(f)
 
 
         def start_game(self):
@@ -207,10 +219,11 @@ def shoot(p,x,y,ro):
 
 def collision(x,y,a):
         hit = False
-        for i in range(len(a)-1):
-                di = dist(x,a[i].x,y,a[i].y)
-                if di < 4+a[i].size*10:
-                        hit = True
+        if len(a) > 0:
+                for i in range(len(a)):
+                        di = dist(x,a[i].x,y,a[i].y)
+                        if di < 4+a[i].size*10:
+                                hit = True
         return hit
 
 
@@ -267,7 +280,7 @@ def draw_game():
                         for i in range(len(game.pjct)):
                                 pygame.draw.circle(screen, (255, 255, 255), (int(game.pjct[i].x), int(game.pjct[i].y)), 1, 0)
                 screen.blit(myfont.render("Points: {}".format(game.points), 1, (255, 255, 0)), (20, 20))
-                screen.blit(myfont.render("Lives: {}".format(game.lives), 1, (255, 255, 0)), (20, 35))
+                screen.blit(myfont.render("Shield: {}".format(game.shield), 1, (255, 255, 0)), (20, 35))
                 screen.blit(myfont.render("Stage: {}".format(game.stage), 1, (255, 255, 0)), (20, 50))
         elif game.state == 2:
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(380, 280, 80, 50))
