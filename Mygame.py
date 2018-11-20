@@ -20,7 +20,6 @@ class Game:
                 self.vel = [0.0,0.0]
                 self.astr = []
                 self.pjct = []
-                self.notp = True
                 self.counter = 0
 
                 
@@ -49,15 +48,13 @@ class Game:
                                 self.vel[0] += cos(dir)*0.2
                                 self.vel[1] += sin(dir)*0.2
                         if pressed[pg.K_LEFT]:
-                                self.ro -= 4
+                                self.ro -= 5
                         if pressed[pg.K_RIGHT]:
-                                self.ro += 4
+                                self.ro += 5
                         self.counter += 1
                         if pressed[pg.K_SPACE] and self.counter >= 30:
                                 self.counter = 0
                                 shoot(self.pjct,self.x,self.y,self.ro)
-                        #elif not pressed[pg.K_SPACE]:
-                        #        self.notp = True
 
                         #ship_movement_de-acc
                         self.vel[0] *= 0.985
@@ -112,9 +109,10 @@ class Game:
                                 del self.pjct[i]        
 
                         #collision
-                        self.points += self.hit(self.pjct,self.astr)
+                        if len(self.astr)*len(self.pjct) > 0:
+                                self.points += self.hit(self.pjct,self.astr)
                         if collision(self.x,self.y,self.astr):
-                                self.loss()
+                                self.ship_hit()
 
         def newStage(self):
                 self.stage += 1
@@ -130,8 +128,13 @@ class Game:
                         if side == 3:
                                 self.astr.append(astroid(50+randint(0,500),550,3))
 
-        def loss(self):
-                pass
+        def ship_hit(self):
+                if self.lives > 0:
+                        self.lives -= 1
+                        self.game_init()
+                else:
+                        pass
+
 
 
         def hit(self,p,a):
@@ -151,28 +154,22 @@ class Game:
                                                         alist.append(j)
                                                         points += 100
 
-                seen = set()
-                uniq = []
-                for x in plist:
-                        if x not in seen:
-                                uniq.append(x)
-                                seen.add(x)
-                uniq.sort()
-                for i in uniq[::-1]:
-                        print('p',plist,uniq[::-1])
+                for i in uniq(plist)[::-1]:
+                        #print('p',plist,uniq[::-1])
                         del self.pjct[i]
-                
-                seen = set()
-                uniq = []
-                for x in alist:
-                        if x not in seen:
-                                uniq.append(x)
-                                seen.add(x)
-                uniq.sort()
-                for i in uniq[::-1]:
-                        print('a',alist,uniq[::-1])
+                for i in uniq(alist)[::-1]:
+                        #print('a',alist,uniq[::-1])
                         del self.astr[i]
                 return points
+
+        def game_init(self):
+                self.x = 400
+                self.y = 300
+                self.ro = 0
+                self.vel = [0.0,0.0]
+                self.astr = []
+                self.pjct = []
+
 
         def start_game(self):
                 if self.state == 0:
@@ -228,6 +225,16 @@ def dist(x1,x2,y1,y2):
 def vec_length(vec):
         l = sqrt(vec[0]**2+vec[1]**2)
         return l
+
+def uniq(l):
+        seen = set()
+        uniq = []
+        for x in l:
+                if x not in seen:
+                        uniq.append(x)
+                        seen.add(x)
+        uniq.sort()
+        return uniq
 
 
 def Ship_pointlist(ro,x,y):
