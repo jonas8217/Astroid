@@ -333,8 +333,8 @@ def Ship_pointlist(ro,x,y):
 def draw_game():
         if game.state == 0:
                 pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(0, 0, 800, 600))
-                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(380, 280, 80, 50))
-                screen.blit(myfont.render("MENU", 1, (255, 255, 255)), (400, 300))
+                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(360, 280, 80, 40))
+                screen.blit(myfont.render("MENU", 1, (255, 255, 255)), (381, 291))
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(260, 400, 300, 120))
                 screen.blit(myfont.render("Controls:", 1, (255, 255, 255)), (270, 405))
                 screen.blit(myfont.render("Thrust: Up Arrow", 1, (255, 255, 255)), (280, 420))
@@ -361,20 +361,29 @@ def draw_game():
                 screen.blit(myfont.render("Points: {}".format(game.points), 1, (255, 255, 0)), (20, 20))
                 screen.blit(myfont.render("Shield: {}".format(game.shield), 1, (255, 255, 0)), (20, 35))
                 screen.blit(myfont.render("Stage: {}".format(game.stage), 1, (255, 255, 0)), (20, 50))
+                game.textinput = pygame_textinput.TextInput()
         elif game.state == 2:
-                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(380, 280, 80, 50))
-                screen.blit(myfont.render("PAUSE", 1, (255, 255, 255)), (400, 300))
+                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(360, 280, 80, 40))
+                screen.blit(myfont.render("PAUSE", 1, (255, 255, 255)), (377, 291))
                 scores = game.get_highscores()
                 scores = scores[:10]
-                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(580, 10, 200, 40+15*len(scores)))
-                screen.blit(myfont.render("Highscores:", 1, (255, 255, 0)), (600, 20))
+                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(570, 10, 210, 40+15*len(scores)))
+                screen.blit(myfont.render("Highscores:", 1, (255, 255, 0)), (590, 20))
                 for i,j in enumerate(scores):
-                        screen.blit(myfont.render(str(j['Name'])+': '+str(j['Score'])+' at '+str(j['Stage']), 1, (255, 255, 0)), (600, 35+i*15))
+                        screen.blit(myfont.render(str(j['Name'])+': '+str(j['Score'])+' at '+str(j['Stage']), 1, (255, 255, 0)), (590, 35+i*15))
+                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(260, 400, 300, 120))
+                screen.blit(myfont.render("Controls:", 1, (255, 255, 255)), (270, 405))
+                screen.blit(myfont.render("Thrust: Up Arrow", 1, (255, 255, 255)), (280, 420))
+                screen.blit(myfont.render("Turn: Left and Right Arrows", 1, (255, 255, 255)), (280, 435))
+                screen.blit(myfont.render("Shoot: Spacebar", 1, (255, 255, 255)), (280, 450))
+                screen.blit(myfont.render("Pause/view Highscores: p", 1, (255, 255, 255)), (280, 465))
+                screen.blit(myfont.render("Exit Game/New Game: ESC", 1, (255, 255, 255)), (280, 480))
+                screen.blit(myfont.render("Sumbmit Score: Enter", 1, (255, 255, 255)), (280, 495))
         elif game.state == 3:
                 screen.fill((225, 225, 225))
-                if textinput.update(events):
-                        game.save_highscore(textinput.get_text())
-                screen.blit(textinput.get_surface(), (10, 10))
+                if game.textinput.update(events):
+                        game.save_highscore(game.textinput.get_text())
+                screen.blit(game.textinput.get_surface(), (10, 10))
 
 
 
@@ -389,8 +398,6 @@ done = False
 game = Game()
 
 clock = pygame.time.Clock()
-
-textinput = pygame_textinput.TextInput()
 
 while not done:
         events = pygame.event.get()
