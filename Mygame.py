@@ -1,9 +1,10 @@
 import pygame
 from math import pi,cos,sin,sqrt
-from random import randint,random
+from random import randint
 from Astroid import astroid
 from Projectile import projectile
 import pickle
+import pygame_textinput
 
 
 class Game:
@@ -12,6 +13,7 @@ class Game:
                 #State 0: Menu
                 #State 1: Game
                 #State 2: Pause
+                #State 3: Highscore visning og input
                 self.ro = 0
                 self.x = 400
                 self.y = 300
@@ -23,13 +25,13 @@ class Game:
                 self.pjct = []
                 self.counter = 0
 
-                
+
 
 
 
         def tick(self, pg, pressed):
                 if self.state == 1:
-                        
+
                         #stage
                         if len(self.astr) == 0:
                                 self.newStage()
@@ -54,7 +56,7 @@ class Game:
                         #ship_movement_de-acc
                         self.vel[0] *= 0.985
                         self.vel[1] *= 0.985
-                        
+
 
                         #movement_execution
                         self.x += self.vel[0]
@@ -93,7 +95,7 @@ class Game:
                                         self.pjct[i].y = float(590)
                                 elif self.pjct[i].y > 590:
                                         self.pjct[i].y = float(10)
-                        
+
                         #delete_projectieles
                         plist = []
                         for i in range(len(self.pjct)):
@@ -101,7 +103,7 @@ class Game:
                                         plist.append(i)
                         for i in range(len(plist)):
                                 del plist[i]
-                                del self.pjct[i]        
+                                del self.pjct[i]
 
                         #collision
                         if len(self.astr)*len(self.pjct) > 0:
@@ -131,6 +133,8 @@ class Game:
                 else:
                         self.save_highscore()
 
+                        #self.reload() #todo
+
 
 
         def hit(self,p,a):
@@ -152,10 +156,10 @@ class Game:
 
                 for i in uniq(plist)[::-1]:
                         del self.pjct[i]
-                
+
                 for i in uniq(alist)[::-1]:
                         del self.astr[i]
-                
+
                 return points
 
         def game_shieldloss_init(self):
@@ -176,11 +180,19 @@ class Game:
                                 self.astr[i].x,self.astr[i].y = (50+randint(0,500),550)
 
         def save_highscore(self):
+                self.state = 3
                 with open('highscore.txt', 'rb') as f:
-                        scores = pickle.load(f)
-                print(scores[0][0])
+                        scores = pickle.load(f)  #score = {'name':'','score':0,'stage':0}
+                for i in range(len(scores)):
+                        if self.points > scores[i]['score']:
+                                self.highscore_input()
+                                newHigh = {'name':str(i+1)+'.','score':self.points,'stage':self.stage}
+                                scores.insert(i,newHigh)
+                                break
+                scores = scores[:10]
                 with open('highscore.txt', 'wb') as f:
-                        pickle.dump(f)
+                        pickle.dump(scores, f)
+                print(scores, len(scores))
 
 
         def start_game(self):
@@ -203,6 +215,12 @@ class Game:
                         return True
                 else:
                         return False
+
+        def highscore_input(self):
+                if self.state == 1:
+                        self.state = 3
+
+
 
 def move_astroids(a):
         for i in range(len(a)):
@@ -285,6 +303,14 @@ def draw_game():
         elif game.state == 2:
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(380, 280, 80, 50))
                 screen.blit(myfont.render("PAUSE", 1, (255, 255, 255)), (400, 300))
+        elif game.state == 3:
+                screen.fill((225, 225, 225))
+                events = pygame.event.get()
+                textinput.update(events)
+                screen.blit(textinput.get_surface(), (10, 10))
+                
+
+
 
 
 pygame.init()
@@ -297,6 +323,8 @@ done = False
 game = Game()
 
 clock = pygame.time.Clock()
+
+textinput = pygame_textinput.TextInput()
 
 while not done:
         for event in pygame.event.get():
@@ -313,7 +341,7 @@ while not done:
         pressed = pygame.key.get_pressed()
 
         game.tick(pygame, pressed)
+        
         draw_game()
-
         pygame.display.flip()
         clock.tick(60)
