@@ -7,7 +7,6 @@ import pygame_textinput
 from highscoreLogger import Logger
 import pickle
 
-#file delete fix
 
 class Game:
         def __init__(self):
@@ -17,7 +16,9 @@ class Game:
                 #State 0: Menu
                 #State 1: Game
                 #State 2: Pause
-                #State 3: Highscore visning og input
+                #State 3: Highscore input
+                
+                #player/ship variables
                 self.ro = 0
                 self.x = 400
                 self.y = 300
@@ -25,11 +26,17 @@ class Game:
                 self.shield = 3
                 self.stage = 0
                 self.vel = [0.0,0.0]
+                self.dead = False
+                
+                #astroid and projectile list
                 self.astr = []
                 self.pjct = []
+
+                #game fase handeling variables 
                 self.counter = 0
                 self.pause_counter = 0
-                self.dead = False
+
+                #Highscore definitions
                 self.scores = self.get_highscores()[:10]
                 self.localScores = self.get_local_highscores()[:5]
 
@@ -205,11 +212,11 @@ class Game:
                         self.astr = self.temp_astr.copy()
 
         def save_highscore(self,name):
-                #Pickle removed because of better option: server database
+                #Pickle database
 
                 try:
                         with open('highscore.txt', 'rb') as f:
-                                scores = pickle.load(f)  #score = {'Name':'','Score':0,'Stage':0}
+                                scores = pickle.load(f)  #score = {'Name':'','Score':0,'Stage':0} layout of stored indexes
                 except:
                         print('No Scorefile, creating score file')
                         score = {'Name':'','Score':0,'Stage':0}
@@ -228,7 +235,6 @@ class Game:
                 with open('highscore.txt', 'wb') as f:
                         print('saving scorefile')
                         pickle.dump(scores, f)
-                #print(scores, len(scores))
 
                 if self.points > 0:
                         self.logger.post_score('Astroid',self.points,str(name),self.stage)
@@ -240,7 +246,6 @@ class Game:
                         scores = sorted(scores, key=lambda scores: scores['Score'], reverse=True)
                 except:
                         print('server database error')
-                #print(scores)
 
 
                 self.state = 4
