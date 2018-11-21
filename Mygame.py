@@ -5,7 +5,7 @@ from Astroid import astroid
 from Projectile import projectile
 import pygame_textinput
 from highscoreLogger import Logger
-#import pickle
+import pickle
 
 
 class Game:
@@ -30,6 +30,7 @@ class Game:
                 self.pause_counter = 0
                 self.dead = False
                 self.scores = self.get_highscores()[:10]
+                self.localScores = self.get_local_highscores()[:5]
 
 
 
@@ -203,29 +204,41 @@ class Game:
                         self.astr = self.temp_astr.copy()
 
         def save_highscore(self,name):
-                """ Pickle removed because of better option: server database
+                #Pickle removed because of better option: server database
+
                 try:
                         with open('highscore.txt', 'rb') as f:
-                                scores = pickle.load(f)  #score = {'name':'','score':0,'stage':0}
+                                scores = pickle.load(f)  #score = {'Name':'','Score':0,'Stage':0}
                 except:
-
+                        print('No Scorefile, creating score file')
+                        score = {'Name':'','Score':0,'Stage':0}
+                        scores = []
+                        for i in range(10):
+                                scores.append(score)
+                        with open('highscore.txt', 'wb') as f:
+                                pickle.dump(scores, f)
                 for i in range(len(scores)):
-                        if self.points > scores[i]['score']:
-                                newHigh = {'name':str(name),'score':self.points,'stage':self.stage}
+                        if self.points > scores[i]['Score']:
+                                newHigh = {'Name':str(name),'Score':self.points,'Stage':self.stage}
                                 scores.insert(i,newHigh)
                                 break
                 scores = scores[:10]
+                self.localScores = scores[:5]
                 with open('highscore.txt', 'wb') as f:
+                        print('saving scorefile')
                         pickle.dump(scores, f)
-                print(scores, len(scores))
-                """
+                #print(scores, len(scores))
+
                 if self.points > 0:
                         self.logger.post_score('Astroid',self.points,str(name),self.stage)
 
                 scores = []
-                for s in self.logger.get_scores('Astroid'):
-                        scores.append({'Name':s['Opt1'],'Score':s['Score'],'Stage':s['Opt2']})
-                scores = sorted(scores, key=lambda scores: scores['Score'], reverse=True)
+                try:
+                        for s in self.logger.get_scores('Astroid'):
+                                scores.append({'Name':s['Opt1'],'Score':s['Score'],'Stage':s['Opt2']})
+                        scores = sorted(scores, key=lambda scores: scores['Score'], reverse=True)
+                except:
+                        print('server database error')
                 #print(scores)
 
 
@@ -244,12 +257,32 @@ class Game:
                 self.pjct = []
                 self.counter = 0
                 self.scores = self.get_highscores()[:10]
+                self.localScores = self.get_local_highscores()[:5]
 
         def get_highscores(self):
                 scores = []
-                for s in self.logger.get_scores('Astroid'):
-                        scores.append({'Name':s['Opt1'],'Score':s['Score'],'Stage':s['Opt2']})
-                return sorted(scores, key=lambda scores: scores['Score'], reverse=True)
+                try:
+                        for s in self.logger.get_scores('Astroid'):
+                                scores.append({'Name':s['Opt1'],'Score':s['Score'],'Stage':s['Opt2']})
+                        return sorted(scores, key=lambda scores: scores['Score'], reverse=True)
+                except:
+                        print('server database error')
+                        return []
+
+        def get_local_highscores(self):
+                try:
+                        with open('highscore.txt', 'rb') as f:
+                                scores = pickle.load(f)  #score = {'name':'','score':0,'stage':0}
+                except:
+                        print('No Scorefile, creating score file')
+                        score = {'Name':'','Score':0,'Stage':0}
+                        scores = []
+                        for i in range(10):
+                                scores.append(score)
+                        with open('highscore.txt', 'wb') as f:
+                                pickle.dump(scores, f)
+                return scores
+
 
 
         def start_game(self):
@@ -265,6 +298,7 @@ class Game:
                 if self.state == 1:
                         self.state = 2
                         self.scores = self.get_highscores()[:10]
+                        self.localScores = self.get_local_highscores()[:5]
                 elif self.state == 2:
                         self.state = 1
 
@@ -358,6 +392,11 @@ def draw_game():
                 screen.blit(myfont.render("Exit Game/New Game: ESC", 1, (255, 255, 255)), (280, 480))
                 screen.blit(myfont.render("Sumbmit Score: Enter", 1, (255, 255, 255)), (280, 495))
 
+                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(570, 210, 210, 40+15*len(game.localScores)))
+                screen.blit(myfont.render("Local Highscores:", 1, (255, 255, 0)), (590, 220))
+                for i,j in enumerate(game.localScores):
+                        screen.blit(myfont.render(str(j['Name'])+': '+str(j['Score'])+' at '+str(j['Stage']), 1, (255, 255, 0)), (590, 235+i*15))
+
         elif game.state == 1:
                 screen.fill((0, 10, 20))
                 #pygame.transform.rotate(screen, game.ro % 360)
@@ -393,6 +432,12 @@ def draw_game():
                 screen.blit(myfont.render("Pause/view Highscores: p", 1, (255, 255, 255)), (280, 465))
                 screen.blit(myfont.render("Exit Game/New Game: ESC", 1, (255, 255, 255)), (280, 480))
                 screen.blit(myfont.render("Sumbmit Score: Enter", 1, (255, 255, 255)), (280, 495))
+
+                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(570, 400, 210, 40+15*len(game.localScores)))
+                screen.blit(myfont.render("Local Highscores:", 1, (255, 255, 0)), (590, 420))
+                for i,j in enumerate(game.localScores):
+                        screen.blit(myfont.render(str(j['Name'])+': '+str(j['Score'])+' at '+str(j['Stage']), 1, (255, 255, 0)), (590, 435+i*15))
+
         elif game.state == 3:
                 screen.fill((225, 225, 225))
                 if game.textinput.update(events) and len(game.textinput.get_text()) > 0:
