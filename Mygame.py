@@ -5,6 +5,7 @@ from Astroid import astroid
 from Projectile import projectile
 import pygame_textinput
 from highscoreLogger import Logger
+#import pickle
 
 
 class Game:
@@ -28,6 +29,7 @@ class Game:
                 self.counter = 0
                 self.pause_counter = 0
                 self.dead = False
+                self.scores = self.get_highscores()[:10]
 
 
 
@@ -202,8 +204,11 @@ class Game:
 
         def save_highscore(self,name):
                 """ Pickle removed because of better option: server database
-                with open('highscore.txt', 'rb') as f:
-                        scores = pickle.load(f)  #score = {'name':'','score':0,'stage':0}
+                try:
+                        with open('highscore.txt', 'rb') as f:
+                                scores = pickle.load(f)  #score = {'name':'','score':0,'stage':0}
+                except:
+
                 for i in range(len(scores)):
                         if self.points > scores[i]['score']:
                                 newHigh = {'name':str(name),'score':self.points,'stage':self.stage}
@@ -258,6 +263,7 @@ class Game:
         def toggle_pause(self):
                 if self.state == 1:
                         self.state = 2
+                        self.scores = self.get_highscores()[:10]
                 elif self.state == 2:
                         self.state = 1
 
@@ -333,8 +339,15 @@ def Ship_pointlist(ro,x,y):
 def draw_game():
         if game.state == 0:
                 pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(0, 0, 800, 600))
+
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(360, 280, 80, 40))
                 screen.blit(myfont.render("MENU", 1, (255, 255, 255)), (381, 291))
+
+                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(570, 10, 210, 40+15*len(game.scores)))
+                screen.blit(myfont.render("Highscores:", 1, (255, 255, 0)), (590, 20))
+                for i,j in enumerate(game.scores):
+                        screen.blit(myfont.render(str(j['Name'])+': '+str(j['Score'])+' at '+str(j['Stage']), 1, (255, 255, 0)), (590, 35+i*15))
+
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(260, 400, 300, 120))
                 screen.blit(myfont.render("Controls:", 1, (255, 255, 255)), (270, 405))
                 screen.blit(myfont.render("Thrust: Up Arrow", 1, (255, 255, 255)), (280, 420))
@@ -365,12 +378,12 @@ def draw_game():
         elif game.state == 2:
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(360, 280, 80, 40))
                 screen.blit(myfont.render("PAUSE", 1, (255, 255, 255)), (377, 291))
-                scores = game.get_highscores()
-                scores = scores[:10]
-                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(570, 10, 210, 40+15*len(scores)))
+
+                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(570, 10, 210, 40+15*len(game.scores)))
                 screen.blit(myfont.render("Highscores:", 1, (255, 255, 0)), (590, 20))
-                for i,j in enumerate(scores):
+                for i,j in enumerate(game.scores):
                         screen.blit(myfont.render(str(j['Name'])+': '+str(j['Score'])+' at '+str(j['Stage']), 1, (255, 255, 0)), (590, 35+i*15))
+
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(260, 400, 300, 120))
                 screen.blit(myfont.render("Controls:", 1, (255, 255, 255)), (270, 405))
                 screen.blit(myfont.render("Thrust: Up Arrow", 1, (255, 255, 255)), (280, 420))
@@ -381,7 +394,7 @@ def draw_game():
                 screen.blit(myfont.render("Sumbmit Score: Enter", 1, (255, 255, 255)), (280, 495))
         elif game.state == 3:
                 screen.fill((225, 225, 225))
-                if game.textinput.update(events):
+                if game.textinput.update(events) and len(game.textinput.get_text()) > 0:
                         game.save_highscore(game.textinput.get_text())
                 screen.blit(game.textinput.get_surface(), (10, 10))
 
@@ -406,7 +419,7 @@ while not done:
                         done = True
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
                         game.toggle_pause()
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE and not game.dead:
                         if game.started():
                                 game.end_game()
                         else:
