@@ -21,7 +21,7 @@ class TextInput:
     def __init__(
             self,
             initial_string="",
-            font_family="",
+            font_family="monospace",
             font_size=35,
             antialias=True,
             text_color=(0, 0, 0),
