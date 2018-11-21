@@ -243,6 +243,7 @@ class Game:
                 self.astr = []
                 self.pjct = []
                 self.counter = 0
+                self.scores = self.get_highscores()[:10]
 
         def get_highscores(self):
                 scores = []
