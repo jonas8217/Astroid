@@ -1,7 +1,7 @@
 
 
 class projectile:
-    def __init__(self,x,y,vel):
+    def __init__(self, x, y, vel):
         self.x = x
         self.y = y
         self.vel = vel

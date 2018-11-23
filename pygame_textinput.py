@@ -60,7 +60,7 @@ class TextInput:
         self.keyrepeat_interval_ms = repeat_keys_interval_ms
 
         # Things cursor:
-        self.cursor_surface = pygame.Surface((int(self.font_size/20+1), self.font_size))
+        self.cursor_surface = pygame.Surface((int(self.font_size / 20 + 1), self.font_size))
         self.cursor_surface.fill(cursor_color)
         self.cursor_position = len(initial_string)  # Inside text
         self.cursor_visible = True  # Switches every self.cursor_switch_ms ms
