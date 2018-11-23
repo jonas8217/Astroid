@@ -1,5 +1,5 @@
 import pygame
-from math import pi,cos,sin,sqrt
+from math import pi, cos, sin, sqrt
 from random import randint
 from Astroid import astroid
 from Projectile import projectile
@@ -25,7 +25,7 @@ class Game:
                 self.points = 0
                 self.shield = 3
                 self.stage = 0
-                self.vel = [0.0,0.0]
+                self.vel = [0.0, 0.0]
                 self.dead = False
 
                 #astroid and projectile list
@@ -40,13 +40,11 @@ class Game:
                 self.scores = self.get_highscores()[:10]
                 self.localScores = self.get_local_highscores()[:5]
 
-
-
         def tick(self, pg, pressed):
                 if self.state == 1:
 
                         #stage
-                        if len(self.astr) == 0 and self.dead == False:
+                        if len(self.astr) == 0 and not self.dead:
                                 self.pause_counter += 1
                                 if self.pause_counter >= 40:
                                         self.pause_counter = 0
@@ -56,14 +54,13 @@ class Game:
                         if self.dead:
                                 self.game_shieldloss_init()
 
-
                         #ship_direction_calc
-                        dir = mapFromTo(self.ro,0,360,0.0,2*pi)
+                        dir = mapFromTo(self.ro, 0, 360, 0.0, 2 * pi)
 
                         #controls
                         if pressed[pg.K_UP] and vec_length(self.vel) < 8:
-                                self.vel[0] += cos(dir)*0.2
-                                self.vel[1] += sin(dir)*0.2
+                                self.vel[0] += cos(dir) * 0.2
+                                self.vel[1] += sin(dir) * 0.2
                         if pressed[pg.K_LEFT]:
                                 self.ro -= 5
                         if pressed[pg.K_RIGHT]:
@@ -71,12 +68,11 @@ class Game:
                         self.counter += 1
                         if pressed[pg.K_SPACE] and self.counter >= 25:
                                 self.counter = 0
-                                shoot(self.pjct,self.x,self.y,self.ro)
+                                shoot(self.pjct, self.x, self.y, self.ro)
 
                         #ship_movement_de-acc
                         self.vel[0] *= 0.985
                         self.vel[1] *= 0.985
-
 
                         #movement_execution
                         self.x += self.vel[0]
@@ -126,29 +122,28 @@ class Game:
                                 del self.pjct[i]
 
                         #collision
-                        if len(self.astr)*len(self.pjct) > 0:
-                                self.points += self.hit(self.pjct,self.astr)
-                        if collision(self.x,self.y,self.astr):
+                        if len(self.astr) * len(self.pjct) > 0:
+                                self.points += self.hit(self.pjct, self.astr)
+                        if collision(self.x, self.y, self.astr):
                                 self.ship_hit()
 
                 if self.state == 4:
                         self.reload()
 
-
         def newStage(self):
                 self.stage += 1
                 self.pjct = []
-                newAstr = self.stage*1.5+4
+                newAstr = self.stage * 1.5 + 4
                 for i in range(int(newAstr)):
                         side = i % 4
                         if side == 0:
-                                self.astr.append(astroid(50,50+randint(0,700),3))
+                                self.astr.append(astroid(50, 50 + randint(0, 700), 3))
                         if side == 1:
-                                self.astr.append(astroid(50+randint(0,500),50,3))
+                                self.astr.append(astroid(50 + randint(0, 500), 50, 3))
                         if side == 2:
-                                self.astr.append(astroid(750,50+randint(0,700),3))
+                                self.astr.append(astroid(750, 50 + randint(0, 700), 3))
                         if side == 3:
-                                self.astr.append(astroid(50+randint(0,500),550,3))
+                                self.astr.append(astroid(50 + randint(0, 500), 550, 3))
 
         def ship_hit(self):
                 self.shield -= 1
@@ -157,21 +152,19 @@ class Game:
                 else:
                         self.highscore_input()
 
-
-
-        def hit(self,p,a):
+        def hit(self, p, a):
                 points = 0
                 plist = []
                 alist = []
-                if len(p)*len(a) > 0:
+                if len(p) * len(a) > 0:
                         for i in range(len(p)):
                                 for j in range(len(a)):
-                                        if dist(p[i].x,a[j].x,p[i].y,a[j].y) < a[j].size*10:
+                                        if dist(p[i].x, a[j].x, p[i].y, a[j].y) < a[j].size * 10:
                                                 plist.append(i)
                                                 split_a = a[j].split()
-                                                if split_a != None:
+                                                if split_a is not None:
                                                         a.append(split_a)
-                                                        points += 100*(split_a.size+1)
+                                                        points += 100 * (split_a.size + 1)
                                                 else:
                                                         alist.append(j)
                                                         points += 100
@@ -190,7 +183,7 @@ class Game:
                         self.x = 400
                         self.y = 300
                         self.ro = 0
-                        self.vel = [0.0,0.0]
+                        self.vel = [0.0, 0.0]
 
                         self.pjct = []
                         self.temp_astr = self.astr.copy()
@@ -202,16 +195,16 @@ class Game:
                         for i in range(len(self.temp_astr)):
                                 side = i % 4
                                 if side == 0:
-                                        self.temp_astr[i].x,self.temp_astr[i].y = (50,50+randint(0,700))
+                                        self.temp_astr[i].x, self.temp_astr[i].y = (50, 50 + randint(0, 700))
                                 if side == 1:
-                                        self.temp_astr[i].x,self.temp_astr[i].y = (50+randint(0,500),50)
+                                        self.temp_astr[i].x, self.temp_astr[i].y = (50 + randint(0, 500), 50)
                                 if side == 2:
-                                        self.temp_astr[i].x,self.temp_astr[i].y = (750,50+randint(0,700))
+                                        self.temp_astr[i].x, self.temp_astr[i].y = (750, 50 + randint(0, 700))
                                 if side == 3:
-                                        self.temp_astr[i].x,self.temp_astr[i].y = (50+randint(0,500),550)
-                        self.astr = self.temp_astr.copy()
+                                        self.temp_astr[i].x, self.temp_astr[i].y = (50 + randint(0, 500), 550)
+                        self.astr = self.temp_astr. copy()
 
-        def save_highscore(self,name):
+        def save_highscore(self, name):
                 #Pickle database
 
                 try:
@@ -219,7 +212,7 @@ class Game:
                                 scores = pickle.load(f)  #score = {'Name':'','Score':0,'Stage':0} layout of stored indexes
                 except:
                         print('No Scorefile, creating score file')
-                        score = {'Name':'','Score':0,'Stage':0}
+                        score = {'Name': '', 'Score': 0, 'Stage': 0}
                         scores = []
                         for i in range(10):
                                 scores.append(score)
@@ -227,8 +220,8 @@ class Game:
                                 pickle.dump(scores, f)
                 for i in range(len(scores)):
                         if self.points > scores[i]['Score']:
-                                newHigh = {'Name':str(name),'Score':self.points,'Stage':self.stage}
-                                scores.insert(i,newHigh)
+                                newHigh = {'Name': str(name), 'Score': self.points, 'Stage': self.stage}
+                                scores.insert(i, newHigh)
                                 break
                 scores = scores[:10]
                 self.localScores = scores[:5]
@@ -237,20 +230,19 @@ class Game:
                         pickle.dump(scores, f)
 
                 if self.points > 0:
-                        self.logger.post_score('Astroid',self.points,str(name),self.stage)
+                        self.logger.post_score('Astroid', self.points, str(name), self.stage)
 
                 scores = []
                 try:
                         for s in self.logger.get_scores('Astroid'):
-                                scores.append({'Name':s['Opt1'],'Score':s['Score'],'Stage':s['Opt2']})
+                                scores.append({'Name': s['Opt1'], 'Score': s['Score'], 'Stage': s['Opt2']})
                         scores = sorted(scores, key=lambda scores: scores['Score'], reverse=True)
                 except:
                         print('server database error')
 
-
                 self.state = 4
 
-        def reload(self,state = 0):
+        def reload(self, state=0):
                 self.state = state
                 self.ro = 0
                 self.x = 400
@@ -258,7 +250,7 @@ class Game:
                 self.points = 0
                 self.shield = 3
                 self.stage = 0
-                self.vel = [0.0,0.0]
+                self.vel = [0.0, 0.0]
                 self.astr = []
                 self.pjct = []
                 self.counter = 0
@@ -269,7 +261,7 @@ class Game:
                 scores = []
                 try:
                         for s in self.logger.get_scores('Astroid'):
-                                scores.append({'Name':s['Opt1'],'Score':s['Score'],'Stage':s['Opt2']})
+                                scores.append({'Name': s['Opt1'], 'Score': s['Score'], 'Stage': s['Opt2']})
                         return sorted(scores, key=lambda scores: scores['Score'], reverse=True)
                 except:
                         print('server database error')
@@ -281,15 +273,13 @@ class Game:
                                 scores = pickle.load(f)  #score = {'name':'','score':0,'stage':0}
                 except:
                         print('No Scorefile, creating score file')
-                        score = {'Name':'','Score':0,'Stage':0}
+                        score = {'Name': '', 'Score': 0, 'Stage': 0}
                         scores = []
                         for i in range(10):
                                 scores.append(score)
                         with open('highscore.txt', 'wb') as f:
                                 pickle.dump(scores, f)
                 return scores
-
-
 
         def start_game(self):
                 if self.state == 0:
@@ -319,46 +309,51 @@ class Game:
                         self.state = 3
 
 
-
 def move_astroids(a):
         for i in range(len(a)):
                 a[i].move()
+
 
 def move_projectiles(p):
         for i in range(len(p)):
                 p[i].move()
 
-def shoot(p,x,y,ro):
-        dir = mapFromTo(ro,0,360,0.0,2*pi)
-        vel = [cos(dir)*8,sin(dir)*8]
-        p.append(projectile(x+cos(dir)*8,y+sin(dir)*8,vel))
 
-def collision(x,y,a):
+def shoot(p, x, y, ro):
+        dir = mapFromTo(ro, 0, 360, 0.0, 2 * pi)
+        vel = [cos(dir) * 8, sin(dir) * 8]
+        p.append(projectile(x + cos(dir) * 8, y + sin(dir) * 8, vel))
+
+
+def collision(x, y, a):
         hit = False
         if len(a) > 0:
                 for i in range(len(a)):
-                        di = dist(x,a[i].x,y,a[i].y)
-                        if di < 4+a[i].size*10:
+                        di = dist(x, a[i].x, y, a[i].y)
+                        if di < 4 + a[i].size * 10:
                                 hit = True
         return hit
 
 
-def mapFromTo(x,a,b,c,d):
-        y = (x-a)/(b-a)*(d-c)+c
+def mapFromTo(x, a, b, c, d):
+        y = (x - a) / (b - a) * (d - c) + c
         return y
 
-def dist(x1,x2,y1,y2):
-        d = sqrt(((x1-x2)**2)+((y1-y2)**2))
+
+def dist(x1, x2, y1, y2):
+        d = sqrt(((x1 - x2)**2) + ((y1 - y2)**2))
         return d
 
-def vec_length(vec):
-        l = sqrt(vec[0]**2+vec[1]**2)
-        return l
 
-def uniq(l):
+def vec_length(vec):
+        lenght = sqrt(vec[0]**2 + vec[1]**2)
+        return lenght
+
+
+def uniq(lst):
         seen = set()
         uniq = []
-        for x in l:
+        for x in lst:
                 if x not in seen:
                         uniq.append(x)
                         seen.add(x)
@@ -366,15 +361,14 @@ def uniq(l):
         return uniq
 
 
-def Ship_pointlist(ro,x,y):
-        l = [[8,135],[8,225],[8,0]]
+def Ship_pointlist(ro, x, y):
+        lst = [[8, 135], [8, 225], [8, 0]]
         ship_point_list = []
         for i in range(3):
-                dir = mapFromTo(ro+l[i][1],0,360,0.0,2*pi)
-                P = [x+cos(dir)*l[i][0],y+sin(dir)*l[i][0]]
+                dir = mapFromTo(ro + lst[i][1], 0, 360, 0.0, 2 * pi)
+                P = [x + cos(dir) * lst[i][0], y + sin(dir) * lst[i][0]]
                 ship_point_list.append(P)
         return ship_point_list
-
 
 
 def draw_game():
@@ -384,36 +378,17 @@ def draw_game():
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(360, 280, 80, 40))
                 screen.blit(myfont.render("MENU", 1, (255, 255, 255)), (381, 291))
 
-                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(570, 10, 210, 40+15*len(game.scores)))
-                screen.blit(myfont.render("Highscores:", 1, (255, 255, 0)), (590, 20))
-                for i,j in enumerate(game.scores):
-                        screen.blit(myfont.render(str(j['Name'])+': '+str(j['Score'])+' at '+str(j['Stage']), 1, (255, 255, 0)), (590, 35+i*15))
-
-                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(260, 400, 300, 120))
-                screen.blit(myfont.render("Controls:", 1, (255, 255, 255)), (270, 405))
-                screen.blit(myfont.render("Thrust: Up Arrow", 1, (255, 255, 255)), (280, 420))
-                screen.blit(myfont.render("Turn: Left and Right Arrows", 1, (255, 255, 255)), (280, 435))
-                screen.blit(myfont.render("Shoot: Spacebar", 1, (255, 255, 255)), (280, 450))
-                screen.blit(myfont.render("Pause: p", 1, (255, 255, 255)), (280, 465))
-                screen.blit(myfont.render("Exit Game/New Game: ESC", 1, (255, 255, 255)), (280, 480))
-                screen.blit(myfont.render("Sumbmit Score: Enter", 1, (255, 255, 255)), (280, 495))
-
-                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(570, 210, 210, 40+15*len(game.localScores)))
-                screen.blit(myfont.render("Local Highscores:", 1, (255, 255, 0)), (590, 220))
-                for i,j in enumerate(game.localScores):
-                        screen.blit(myfont.render(str(j['Name'])+': '+str(j['Score'])+' at '+str(j['Stage']), 1, (255, 255, 0)), (590, 235+i*15))
-
         elif game.state == 1:
                 screen.fill((0, 10, 20))
                 #pygame.transform.rotate(screen, game.ro % 360)
-                pygame.draw.polygon(screen, (255,255,255), Ship_pointlist(game.ro,game.x,game.y), 1)
+                pygame.draw.polygon(screen, (255, 255, 255), Ship_pointlist(game.ro, game.x, game.y), 1)
 
                 if len(game.astr) > 0:
                         for i in range(len(game.astr)):
                                 try:
-                                        pygame.draw.circle(screen, (255, 255, 255), (int(game.astr[i].x), int(game.astr[i].y)), game.astr[i].size*10, 2)
+                                        pygame.draw.circle(screen, (255, 255, 255), (int(game.astr[i].x), int(game.astr[i].y)), game.astr[i].size * 10, 2)
                                 except:
-                                        print(game.astr.index(game.astr[i]),len(game.astr))
+                                        print(game.astr.index(game.astr[i]), len(game.astr))
                 if len(game.pjct) > 0:
                         for i in range(len(game.pjct)):
                                 pygame.draw.circle(screen, (255, 255, 255), (int(game.pjct[i].x), int(game.pjct[i].y)), 1, 0)
@@ -425,10 +400,11 @@ def draw_game():
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(360, 280, 80, 40))
                 screen.blit(myfont.render("PAUSE", 1, (255, 255, 255)), (377, 291))
 
-                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(570, 10, 210, 40+15*len(game.scores)))
+        if game.state == 2 or game.state == 0:
+                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(570, 10, 210, 40 + 15 * len(game.scores)))
                 screen.blit(myfont.render("Highscores:", 1, (255, 255, 0)), (590, 20))
-                for i,j in enumerate(game.scores):
-                        screen.blit(myfont.render(str(j['Name'])+': '+str(j['Score'])+' at '+str(j['Stage']), 1, (255, 255, 0)), (590, 35+i*15))
+                for i, j in enumerate(game.scores):
+                        screen.blit(myfont.render(str(j['Name']) + ': ' + str(j['Score']) + ' at ' + str(j['Stage']), 1, (255, 255, 0)), (590, 35 + i * 15))
 
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(260, 400, 300, 120))
                 screen.blit(myfont.render("Controls:", 1, (255, 255, 255)), (270, 405))
@@ -439,18 +415,16 @@ def draw_game():
                 screen.blit(myfont.render("Exit Game/New Game: ESC", 1, (255, 255, 255)), (280, 480))
                 screen.blit(myfont.render("Sumbmit Score: Enter", 1, (255, 255, 255)), (280, 495))
 
-                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(570, 400, 210, 40+15*len(game.localScores)))
-                screen.blit(myfont.render("Local Highscores:", 1, (255, 255, 0)), (590, 420))
-                for i,j in enumerate(game.localScores):
-                        screen.blit(myfont.render(str(j['Name'])+': '+str(j['Score'])+' at '+str(j['Stage']), 1, (255, 255, 0)), (590, 435+i*15))
+                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(570, 400, 210, 40 + 15 * len(game.localScores)))
+                screen.blit(myfont.render("Local Highscores:", 1, (255, 255, 0)), (590, 410))
+                for i, j in enumerate(game.localScores):
+                        screen.blit(myfont.render(str(j['Name']) + ': ' + str(j['Score']) + ' at ' + str(j['Stage']), 1, (255, 255, 0)), (590, 425 + i * 15))
 
         elif game.state == 3:
                 screen.fill((225, 225, 225))
                 if game.textinput.update(events) and len(game.textinput.get_text()) > 0:
                         game.save_highscore(game.textinput.get_text())
                 screen.blit(game.textinput.get_surface(), (10, 10))
-
-
 
 
 pygame.init()
