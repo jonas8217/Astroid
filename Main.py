@@ -17,7 +17,7 @@ class Game:
                 #State 1: Game
                 #State 2: Pause
                 #State 3: Highscore input
-                
+
                 #player/ship variables
                 self.ro = 0
                 self.x = 400
@@ -27,12 +27,12 @@ class Game:
                 self.stage = 0
                 self.vel = [0.0,0.0]
                 self.dead = False
-                
+
                 #astroid and projectile list
                 self.astr = []
                 self.pjct = []
 
-                #game fase handeling variables 
+                #game fase handeling variables
                 self.counter = 0
                 self.pause_counter = 0
 

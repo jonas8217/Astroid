@@ -1,10 +1,10 @@
 from serverHandler import Handler
 
 class Logger:
-    
+
     def __init__(self):
         self.handler = Handler()
-    
+
     def post_score(self,game,score,opt1="n/a",opt2="n/a",opt3="n/a"):
         #Poster score til game
         #Returnerer liste af scores til game
@@ -13,9 +13,9 @@ class Logger:
         for s in scores:
             if s["Game"] == str(game):
                 templist.append(s)
-        
+
         return templist
-            
+
 
     def get_scores(self,game):
         #Poster score til game
@@ -27,4 +27,3 @@ class Logger:
                 templist.append(s)
 
         return templist
-
