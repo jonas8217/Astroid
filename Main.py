@@ -378,25 +378,6 @@ def draw_game():
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(360, 280, 80, 40))
                 screen.blit(myfont.render("MENU", 1, (255, 255, 255)), (381, 291))
 
-                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(570, 10, 210, 40 + 15 * len(game.scores)))
-                screen.blit(myfont.render("Highscores:", 1, (255, 255, 0)), (590, 20))
-                for i, j in enumerate(game.scores):
-                        screen.blit(myfont.render(str(j['Name']) + ': ' + str(j['Score']) + ' at ' + str(j['Stage']), 1, (255, 255, 0)), (590, 35 + i * 15))
-
-                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(260, 400, 300, 120))
-                screen.blit(myfont.render("Controls:", 1, (255, 255, 255)), (270, 405))
-                screen.blit(myfont.render("Thrust: Up Arrow", 1, (255, 255, 255)), (280, 420))
-                screen.blit(myfont.render("Turn: Left and Right Arrows", 1, (255, 255, 255)), (280, 435))
-                screen.blit(myfont.render("Shoot: Spacebar", 1, (255, 255, 255)), (280, 450))
-                screen.blit(myfont.render("Pause: p", 1, (255, 255, 255)), (280, 465))
-                screen.blit(myfont.render("Exit Game/New Game: ESC", 1, (255, 255, 255)), (280, 480))
-                screen.blit(myfont.render("Sumbmit Score: Enter", 1, (255, 255, 255)), (280, 495))
-
-                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(570, 400, 210, 40 + 15 * len(game.localScores)))
-                screen.blit(myfont.render("Local Highscores:", 1, (255, 255, 0)), (590, 410))
-                for i, j in enumerate(game.localScores):
-                        screen.blit(myfont.render(str(j['Name']) + ': ' + str(j['Score']) + ' at ' + str(j['Stage']), 1, (255, 255, 0)), (590, 425 + i * 15))
-
         elif game.state == 1:
                 screen.fill((0, 10, 20))
                 #pygame.transform.rotate(screen, game.ro % 360)
@@ -418,7 +399,8 @@ def draw_game():
         elif game.state == 2:
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(360, 280, 80, 40))
                 screen.blit(myfont.render("PAUSE", 1, (255, 255, 255)), (377, 291))
-
+        
+        if game.state == 2 or game.state == 0:
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(570, 10, 210, 40 + 15 * len(game.scores)))
                 screen.blit(myfont.render("Highscores:", 1, (255, 255, 0)), (590, 20))
                 for i, j in enumerate(game.scores):
@@ -434,9 +416,9 @@ def draw_game():
                 screen.blit(myfont.render("Sumbmit Score: Enter", 1, (255, 255, 255)), (280, 495))
 
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(570, 400, 210, 40 + 15 * len(game.localScores)))
-                screen.blit(myfont.render("Local Highscores:", 1, (255, 255, 0)), (590, 420))
+                screen.blit(myfont.render("Local Highscores:", 1, (255, 255, 0)), (590, 410))
                 for i, j in enumerate(game.localScores):
-                        screen.blit(myfont.render(str(j['Name']) + ': ' + str(j['Score']) + ' at ' + str(j['Stage']), 1, (255, 255, 0)), (590, 435 + i * 15))
+                        screen.blit(myfont.render(str(j['Name']) + ': ' + str(j['Score']) + ' at ' + str(j['Stage']), 1, (255, 255, 0)), (590, 425 + i * 15))
 
         elif game.state == 3:
                 screen.fill((225, 225, 225))
