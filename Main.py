@@ -6,7 +6,7 @@ from Projectile import projectile
 import pygame_textinput
 from highscoreLogger import Logger
 import pickle
-
+import os
 
 class Game:
         def __init__(self):
@@ -428,6 +428,13 @@ def draw_game():
 
 
 pygame.init()
+try:
+        folder_path = 'C:\\Users\\Jonas\\Documents\\GitHub\\Mygame'
+        icon = pygame.image.load(os.path.join(folder_path, 'Astroid_icon.png'))
+        pygame.display.set_icon(icon)
+except:
+        pass
+pygame.display.set_caption('Astroid')
 screen = pygame.display.set_mode((800, 600))
 # initialize font; must be called after 'pygame.init()' to avoid 'Font not Initialized' error
 myfont = pygame.font.SysFont("monospace", 15)
