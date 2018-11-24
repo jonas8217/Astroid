@@ -433,7 +433,7 @@ try:
         icon = pygame.image.load(os.path.join(folder_path, 'Astroid_icon.png'))
         pygame.display.set_icon(icon)
 except:
-        pass
+        print('Unoriginal filepath, (different pc)')
 pygame.display.set_caption('Astroid')
 screen = pygame.display.set_mode((800, 600))
 # initialize font; must be called after 'pygame.init()' to avoid 'Font not Initialized' error
