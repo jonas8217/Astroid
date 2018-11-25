@@ -160,7 +160,7 @@ class Game:
                 if len(p) * len(a) > 0:
                         for i in range(len(p)):
                                 for j in range(len(a)):
-                                        if dist(p[i].x, a[j].x, p[i].y, a[j].y) < a[j].size * 10:
+                                        if dist(p[i].x, a[j].x, p[i].y, a[j].y) < a[j].size * 10 + 1:
                                                 plist.append(i)
                                                 split_a = a[j].split()
                                                 if split_a is not None:
@@ -386,13 +386,10 @@ def draw_game():
 
                 if len(game.astr) > 0:
                         for i in range(len(game.astr)):
-                                try:
-                                        pygame.draw.circle(screen, (255, 255, 255), (int(game.astr[i].x), int(game.astr[i].y)), game.astr[i].size * 10, 2)
-                                except:
-                                        print(game.astr.index(game.astr[i]), len(game.astr))
+                                pygame.draw.circle(screen, (255, 255, 255), (int(game.astr[i].x), int(game.astr[i].y)), game.astr[i].size * 10, 2)
                 if len(game.pjct) > 0:
                         for i in range(len(game.pjct)):
-                                pygame.draw.circle(screen, (255, 255, 255), (int(game.pjct[i].x), int(game.pjct[i].y)), 1, 0)
+                                pygame.draw.circle(screen, (255, 255, 255), (int(game.pjct[i].x), int(game.pjct[i].y)), 2, 0)
                 screen.blit(myfont.render("Points: {}".format(game.points), 1, (255, 255, 0)), (20, 20))
                 screen.blit(myfont.render("Shield: {}".format(game.shield), 1, (255, 255, 0)), (20, 35))
                 screen.blit(myfont.render("Stage: {}".format(game.stage), 1, (255, 255, 0)), (20, 50))
