@@ -186,11 +186,11 @@ class Game:
                         self.y = 300
                         self.ro = 0
                         self.vel = [0.0, 0.0]
-
+                        self.dead = True
                         self.pjct = []
                         self.temp_astr = self.astr.copy()
                         self.astr = []
-                        self.dead = True
+
                 elif self.pause_counter >= 40:
                         self.pause_counter = 0
                         self.dead = False
