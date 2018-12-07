@@ -28,6 +28,8 @@ class Game:
                 self.stage = 0
                 self.vel = [0.0, 0.0]
                 self.dead = False
+                self.thrust_counter = 0
+                self.thrust = False
 
                 #astroid and projectile list
                 self.astr = []
@@ -62,6 +64,9 @@ class Game:
                         if pressed[pg.K_UP] and vec_length(self.vel) < 8:
                                 self.vel[0] += cos(dir) * 0.2
                                 self.vel[1] += sin(dir) * 0.2
+                                self.thrust = True
+                        else:
+                                self.thrust = False
                         if pressed[pg.K_LEFT]:
                                 self.ro -= 5
                         if pressed[pg.K_RIGHT]:
@@ -371,6 +376,15 @@ def Ship_pointlist(ro, x, y):
                 ship_point_list.append(P)
         return ship_point_list
 
+def Ship_thrust_pointlist(ro, x, y):
+        lst = [[6, 160], [10, 180], [6, 200]]
+        ship_thrust_point_list = []
+        for i in range(3):
+                dir = mapFromTo(ro + lst[i][1], 0, 360, 0.0, 2 * pi)
+                P = [x + cos(dir) * lst[i][0], y + sin(dir) * lst[i][0]]
+                ship_thrust_point_list.append(P)
+        return ship_thrust_point_list
+
 
 def draw_game():
         if game.state == 0:
@@ -383,6 +397,13 @@ def draw_game():
                 screen.fill((0, 10, 20))
                 #pygame.transform.rotate(screen, game.ro % 360)
                 pygame.draw.polygon(screen, (255, 255, 255), Ship_pointlist(game.ro, game.x, game.y), 1)
+                if game.thrust_counter > 9:
+                        game.thrust_counter = 0
+                if 0 <= game.thrust_counter <= 5 and game.thrust:
+                        pygame.draw.polygon(screen, (255, 255, 255), Ship_thrust_pointlist(game.ro, game.x, game.y), 1)
+                game.thrust_counter += 1
+
+
 
                 if len(game.astr) > 0:
                         for i in range(len(game.astr)):
