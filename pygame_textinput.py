@@ -38,7 +38,7 @@ class TextInput:
         :param repeat_keys_initial_ms: Time in ms before keys are repeated when held
         :param repeat_keys_interval_ms: Interval between key press repetition when helpd
         """
-
+        
         # Text related vars:
         self.antialias = antialias
         self.text_color = text_color
