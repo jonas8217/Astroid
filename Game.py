@@ -1,12 +1,12 @@
 import pygame
 from math import pi, cos, sin, sqrt
 from random import randint
-from Astroid import astroid
-from Projectile import projectile
+from Astroid import Astroid
+from Projectile import Projectile
 from highscoreLogger import Logger
 import pickle
 
-class game:
+class Game:
         def __init__(self):
                 self.logger = Logger()
 
@@ -28,7 +28,7 @@ class game:
                 self.thrust_counter = 0
                 self.thrust = False
 
-                #astroid and projectile list
+                #Astroid and projectile list
                 self.astr = []
                 self.pjct = []
 
@@ -96,7 +96,7 @@ class game:
                         elif self.y > 590:
                                 self.y = float(10)
 
-                        ##astroids
+                        ##Astroids
                         for i in range(len(self.astr)):
                                 if self.astr[i].x < 10:
                                         self.astr[i].x = float(790)
@@ -142,13 +142,13 @@ class game:
                 for i in range(int(newAstr)):
                         side = i % 4
                         if side == 0:
-                                self.astr.append(astroid(50, 50 + randint(0, 700), 3))
+                                self.astr.append(Astroid(50, 50 + randint(0, 700), 3))
                         if side == 1:
-                                self.astr.append(astroid(50 + randint(0, 500), 50, 3))
+                                self.astr.append(Astroid(50 + randint(0, 500), 50, 3))
                         if side == 2:
-                                self.astr.append(astroid(750, 50 + randint(0, 700), 3))
+                                self.astr.append(Astroid(750, 50 + randint(0, 700), 3))
                         if side == 3:
-                                self.astr.append(astroid(50 + randint(0, 500), 550, 3))
+                                self.astr.append(Astroid(50 + randint(0, 500), 550, 3))
 
         def ship_hit(self):
                 self.shield -= 1
@@ -194,7 +194,7 @@ class game:
         def shoot(self):
                 dir = mapFromTo(self.ro, 0, 360, 0.0, 2 * pi)
                 vel = [cos(dir) * 8, sin(dir) * 8]
-                self.pjct.append(projectile(self.x + cos(dir) * 8, self.y + sin(dir) * 8, vel))
+                self.pjct.append(Projectile(self.x + cos(dir) * 8, self.y + sin(dir) * 8, vel))
 
         def Ship_pointlist(self):
                 lst = [[8, 135], [8, 225], [8, 0]]

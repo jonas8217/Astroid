@@ -2,7 +2,7 @@ from random import randint, random
 from math import pi, cos, sin
 
 
-class astroid:
+class Astroid:
     def __init__(self, x, y, size=randint(1, 3)):
         self.x = x
         self.y = y
@@ -25,7 +25,7 @@ class astroid:
             dir = random() * 2 * pi
             sp = mapFromTo(random(), 0.0, 1.0, 1.0, 2)
             self.vel = [cos(dir) * sp, sin(dir) * sp]
-            a = astroid(self.x, self.y, self.size)
+            a = Astroid(self.x, self.y, self.size)
             return a
 
 

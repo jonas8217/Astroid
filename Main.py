@@ -1,5 +1,5 @@
 import pygame
-from Game import game
+from Game import Game
 import pygame_textinput
 import base64
 import io
@@ -76,7 +76,7 @@ myfont = pygame.font.SysFont("monospace", 15)
 
 done = False
 
-game = game()
+game = Game()
 
 clock = pygame.time.Clock()
 
