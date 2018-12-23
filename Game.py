@@ -132,8 +132,6 @@ class Game:
                         if self.collision():
                                 self.ship_hit()
 
-                if self.state == 4:
-                        self.reload()
 
         def newStage(self):
                 self.stage += 1
@@ -239,7 +237,7 @@ class Game:
                                         self.temp_astr[i].x, self.temp_astr[i].y = (750, 50 + randint(0, 700))
                                 if side == 3:
                                         self.temp_astr[i].x, self.temp_astr[i].y = (50 + randint(0, 500), 550)
-                        self.astr = self.temp_astr. copy()
+                        self.astr = self.temp_astr.copy()
 
 
         def reload(self, state=0):
@@ -267,7 +265,7 @@ class Game:
                         print('No Scorefile, creating score file')
                         score = {'Name': '', 'Score': 0, 'Stage': 0}
                         scores = []
-                        for i in range(10):
+                        for i in range(5):
                                 scores.append(score)
                         with open('highscore.txt', 'wb') as f:
                                 pickle.dump(scores, f)
@@ -276,12 +274,14 @@ class Game:
                                 newHigh = {'Name': str(name), 'Score': self.points, 'Stage': self.stage}
                                 scores.insert(i, newHigh)
                                 break
-                scores = scores[:10]
+                scores = scores[:5]
                 self.localScores = scores[:5]
                 with open('highscore.txt', 'wb') as f:
                         print('saving scorefile')
                         pickle.dump(scores, f)
 
+
+                #online database
                 if self.points > 0:
                         self.logger.post_score('Astroid', self.points, str(name), self.stage)
 
@@ -293,7 +293,7 @@ class Game:
                 except:
                         print('server database error')
 
-                self.state = 4
+                self.reload()
 
         def get_highscores(self):
                 scores = []
@@ -332,7 +332,6 @@ class Game:
                 if self.state == 1:
                         self.state = 2
                         self.scores = self.get_highscores()[:10]
-                        self.localScores = self.get_local_highscores()[:5]
                 elif self.state == 2:
                         self.state = 1
 
@@ -340,11 +339,6 @@ class Game:
                 if self.state == 1:
                         self.state = 3
 
-        def started(self):
-                if self.state > 0:
-                        return True
-                else:
-                        return False
 
 
 def mapFromTo(x, a, b, c, d):

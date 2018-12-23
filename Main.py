@@ -6,6 +6,7 @@ import io
 
 def draw_game():
         if game.state == 0:
+                game.textinput = pygame_textinput.TextInput()
                 pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(0, 0, 800, 600))
 
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(360, 280, 80, 40))
@@ -80,7 +81,7 @@ game = Game()
 
 clock = pygame.time.Clock()
 
-game.textinput = pygame_textinput.TextInput()
+
 
 while not done:
         events = pygame.event.get()
@@ -90,7 +91,7 @@ while not done:
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
                         game.toggle_pause()
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE and not game.dead:
-                        if game.started():
+                        if game.state != 0:
                                 game.end_game()
                         else:
                                 game.start_game()
