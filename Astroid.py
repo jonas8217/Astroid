@@ -3,7 +3,7 @@ from math import pi, cos, sin
 
 
 class Astroid:
-    def __init__(self, x, y, size=randint(1, 3)):
+    def __init__(self, x, y, size):
         self.x = x
         self.y = y
         self.size = size

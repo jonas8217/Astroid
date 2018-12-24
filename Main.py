@@ -60,9 +60,10 @@ def draw_game():
 
         elif game.state == 3:
                 screen.fill((225, 225, 225))
+                screen.blit(game.textinput.get_surface(), (10, 10))
                 if game.textinput.update(events) and len(game.textinput.get_text()) > 0:
                         game.save_highscore(game.textinput.get_text())
-                screen.blit(game.textinput.get_surface(), (10, 10))
+                
 
 
 pygame.init()
@@ -80,8 +81,6 @@ done = False
 game = Game()
 
 clock = pygame.time.Clock()
-
-
 
 while not done:
         events = pygame.event.get()
