@@ -1,4 +1,3 @@
-import pygame
 from math import pi, cos, sin, sqrt
 from random import randint
 from Astroid import Astroid
