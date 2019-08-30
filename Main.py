@@ -10,11 +10,11 @@ def draw_game():
                 pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(0, 0, 800, 600))
 
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(360, 280, 80, 40))
-                screen.blit(myfont.render("MENU", 1, (255, 255, 255)), (381, 291))
+                screen.blit(infofont.render("MENU", 1, (255, 255, 255)), (381, 291))
 
         elif game.state == 1:
                 screen.fill((0, 10, 20))
-                #pygame.transform.rotate(screen, game.ro % 360)
+                #Ship drawing
                 pygame.draw.polygon(screen, (255, 255, 255), game.Ship_pointlist(), 1)
                 if game.thrust_counter > 9:
                         game.thrust_counter = 0
@@ -30,33 +30,38 @@ def draw_game():
                 if len(game.pjct) > 0:
                         for i in range(len(game.pjct)):
                                 pygame.draw.circle(screen, (255, 255, 255), (int(game.pjct[i].x), int(game.pjct[i].y)), 2, 0)
-                screen.blit(myfont.render("Points: {}".format(game.points), 1, (255, 255, 0)), (20, 20))
-                screen.blit(myfont.render("Shield: {}".format(game.shield), 1, (255, 255, 0)), (20, 35))
-                screen.blit(myfont.render("Stage: {}".format(game.stage), 1, (255, 255, 0)), (20, 50))
+                screen.blit(infofont.render("Points: {}".format(game.points), 1, (255, 255, 0)), (20, 20))
+                screen.blit(infofont.render("Shield: {}".format(game.shield), 1, (255, 255, 0)), (20, 35))
+                screen.blit(infofont.render("Stage: {}".format(game.stage), 1, (255, 255, 0)), (20, 50))
+
+                if game.incoming_astroids:
+                        size = warningfont.size("!Incoming Astroids!")
+                        screen.blit(warningfont.render("!Incoming Astroids!", 1, (255, 0, 0)), (400-size[0]//2, 300-size[1]//2))
                 
         elif game.state == 2:
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(360, 280, 80, 40))
-                screen.blit(myfont.render("PAUSE", 1, (255, 255, 255)), (377, 291))
+                screen.blit(infofont.render("PAUSE", 1, (255, 255, 255)), (377, 291))
 
         if game.state == 2 or game.state == 0:
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(570, 10, 210, 40 + 15 * len(game.scores)))
-                screen.blit(myfont.render("Highscores:", 1, (255, 255, 0)), (590, 20))
+                screen.blit(infofont.render("Highscores:", 1, (255, 255, 0)), (590, 20))
                 for i, j in enumerate(game.scores):
-                        screen.blit(myfont.render(str(j['Name']) + ': ' + str(j['Score']) + ' at ' + str(j['Stage']), 1, (255, 255, 0)), (590, 35 + i * 15))
+                        screen.blit(infofont.render(str(j['Name']) + ': ' + str(j['Score']) + ' at ' + str(j['Stage']), 1, (255, 255, 0)), (590, 35 + i * 15))
 
-                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(260, 400, 300, 120))
-                screen.blit(myfont.render("Controls:", 1, (255, 255, 255)), (270, 405))
-                screen.blit(myfont.render("Thrust: Up Arrow", 1, (255, 255, 255)), (280, 420))
-                screen.blit(myfont.render("Turn: Left and Right Arrows", 1, (255, 255, 255)), (280, 435))
-                screen.blit(myfont.render("Shoot: Spacebar", 1, (255, 255, 255)), (280, 450))
-                screen.blit(myfont.render("Pause: p", 1, (255, 255, 255)), (280, 465))
-                screen.blit(myfont.render("Exit Game/New Game: ESC", 1, (255, 255, 255)), (280, 480))
-                screen.blit(myfont.render("Sumbmit Score: Enter", 1, (255, 255, 255)), (280, 495))
+                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(260, 400, 300, 135))
+                screen.blit(infofont.render("Controls:", 1, (255, 255, 255)), (270, 405))
+                screen.blit(infofont.render("Thrust: W or Up Arrow", 1, (255, 255, 255)), (280, 420))
+                screen.blit(infofont.render("Turn: A and D or", 1, (255, 255, 255)), (280, 435))
+                screen.blit(infofont.render("      Left and Right Arrows", 1, (255, 255, 255)), (280, 450))
+                screen.blit(infofont.render("Shoot: Spacebar", 1, (255, 255, 255)), (280, 465))
+                screen.blit(infofont.render("Pause: P", 1, (255, 255, 255)), (280, 480))
+                screen.blit(infofont.render("Exit Game/New Game: ESC", 1, (255, 255, 255)), (280, 495))
+                screen.blit(infofont.render("Sumbmit Score: Enter", 1, (255, 255, 255)), (280, 510))
 
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(570, 400, 210, 30 + 15 * len(game.localScores)))
-                screen.blit(myfont.render("Local Highscores:", 1, (255, 255, 0)), (590, 405))
+                screen.blit(infofont.render("Local Highscores:", 1, (255, 255, 0)), (590, 405))
                 for i, j in enumerate(game.localScores):
-                        screen.blit(myfont.render(str(j['Name']) + ': ' + str(j['Score']) + ' at ' + str(j['Stage']), 1, (255, 255, 0)), (590, 420 + i * 15))
+                        screen.blit(infofont.render(str(j['Name']) + ': ' + str(j['Score']) + ' at ' + str(j['Stage']), 1, (255, 255, 0)), (590, 420 + i * 15))
 
         elif game.state == 3:
                 screen.fill((225, 225, 225))
@@ -74,7 +79,8 @@ pygame.display.set_icon(icon)
 pygame.display.set_caption('Astroid')
 screen = pygame.display.set_mode((800, 600))
 # initialize font; must be called after 'pygame.init()' to avoid 'Font not Initialized' error
-myfont = pygame.font.SysFont("monospace", 15)
+infofont = pygame.font.SysFont("monospace", 15)
+warningfont = pygame.font.SysFont("monospace", 30)
 
 done = False
 

@@ -15,7 +15,10 @@ class Game:
         #State 2: Pause
         #State 3: Highscore input
 
-        #player/ship variables
+        #Game flags
+        self.incoming_astroids = False
+
+        #Player/ship variables
         self.ro = 0
         self.x = 400
         self.y = 300
@@ -45,8 +48,10 @@ class Game:
             #stage
             if len(self.astr) == 0 and not self.dead:
                 self.pause_counter += 1
-                if self.pause_counter >= 40:
+                self.incoming_astroids = True
+                if self.pause_counter >= 80:
                     self.pause_counter = 0
+                    self.incoming_astroids = False
                     self.newStage()
 
             #check_if_dead
@@ -57,15 +62,15 @@ class Game:
             dir = mapFromTo(self.ro, 0, 360, 0.0, 2 * pi)
 
             #controls
-            if pressed[pg.K_UP] and vec_length(self.vel) < 8:
+            if pressed[pg.K_w] and vec_length(self.vel) < 8:
                 self.vel[0] += cos(dir) * 0.2
                 self.vel[1] += sin(dir) * 0.2
                 self.thrust = True
             else:
                 self.thrust = False
-            if pressed[pg.K_LEFT]:
+            if pressed[pg.K_a]:
                 self.ro -= 5
-            if pressed[pg.K_RIGHT]:
+            if pressed[pg.K_d]:
                 self.ro += 5
             self.counter += 1
             if pressed[pg.K_SPACE] and self.counter >= 25:
@@ -135,8 +140,8 @@ class Game:
     def newStage(self):
         self.stage += 1
         self.pjct = []
-        newAstr = self.stage * 1.5 + 4
-        for i in range(int(newAstr)):
+        newAstr = int(self.stage * 1.5 + 4)
+        for i in range(newAstr):
             side = i % 4
             if side == 0:
                 self.astr.append(Astroid(50, 50 + randint(0, 700), 3))
@@ -223,7 +228,7 @@ class Game:
             self.temp_astr = self.astr.copy()
             self.astr = []
 
-        elif self.pause_counter >= 40:
+        elif self.pause_counter >= 80:
             self.pause_counter = 0
             self.dead = False
             for i in range(len(self.temp_astr)):
