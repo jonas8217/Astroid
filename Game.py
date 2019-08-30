@@ -62,15 +62,15 @@ class Game:
             dir = mapFromTo(self.ro, 0, 360, 0.0, 2 * pi)
 
             #controls
-            if pressed[pg.K_w] and vec_length(self.vel) < 8:
+            if (pressed[pg.K_w] or pressed[pg.K_UP]) and vec_length(self.vel) < 8:
                 self.vel[0] += cos(dir) * 0.2
                 self.vel[1] += sin(dir) * 0.2
                 self.thrust = True
             else:
                 self.thrust = False
-            if pressed[pg.K_a]:
+            if  pressed[pg.K_a] or pressed[pg.K_LEFT]:
                 self.ro -= 5
-            if pressed[pg.K_d]:
+            if pressed[pg.K_d] or pressed[pg.K_RIGHT]:
                 self.ro += 5
             self.counter += 1
             if pressed[pg.K_SPACE] and self.counter >= 25:
