@@ -49,6 +49,7 @@ class Game:
             if len(self.astr) == 0 and not self.dead:
                 self.pause_counter += 1
                 self.incoming_astroids = True
+                self.pjct = []
                 if self.pause_counter >= 80:
                     self.pause_counter = 0
                     self.incoming_astroids = False
@@ -73,7 +74,7 @@ class Game:
             if pressed[pg.K_d] or pressed[pg.K_RIGHT]:
                 self.ro += 5
             self.counter += 1
-            if pressed[pg.K_SPACE] and self.counter >= 25:
+            if pressed[pg.K_SPACE] and self.counter >= 25 and len(self.astr) != 0:
                 self.counter = 0
                 self.shoot()
 
@@ -91,41 +92,46 @@ class Game:
 
             #looping
             ##player
-            if self.x < 10:
-                self.x = float(790)
-            elif self.x > 790:
-                self.x = float(10)
-            if self.y < 10:
-                self.y = float(590)
-            elif self.y > 590:
-                self.y = float(10)
+            if self.x < 0:
+                self.x = float(800)
+            elif self.x > 800:
+                self.x = float(0)
+            if self.y < 0:
+                self.y = float(600)
+            elif self.y > 600:
+                self.y = float(0)
 
             ##Astroids
-            for i in range(len(self.astr)):
-                if self.astr[i].x < 10:
-                    self.astr[i].x = float(790)
-                elif self.astr[i].x > 790:
-                    self.astr[i].x = float(10)
-                if self.astr[i].y < 10:
-                    self.astr[i].y = float(590)
-                elif self.astr[i].y > 590:
-                    self.astr[i].y = float(10)
+            for astr in self.astr:
+                astrLBx = float(- astr.size * 10)
+                astrUBx = float(800 + astr.size * 10)
+                astrLBy = float(- astr.size * 10)
+                astrUBy = float(600 + astr.size * 10)
+                if astr.x < astrLBx:
+                    astr.x = astrUBx
+                elif astr.x > astrUBx:
+                    astr.x = astrLBx
+                if astr.y < astrLBy:
+                    astr.y = astrUBy
+                elif astr.y > astrUBy:
+                    astr.y = astrLBy
+
             ##projectiles
-            for i in range(len(self.pjct)):
-                if self.pjct[i].x < 10:
-                    self.pjct[i].x = float(790)
-                elif self.pjct[i].x > 790:
-                    self.pjct[i].x = float(10)
-                if self.pjct[i].y < 10:
-                    self.pjct[i].y = float(590)
-                elif self.pjct[i].y > 590:
-                    self.pjct[i].y = float(10)
+            for pjct in self.pjct:
+                if pjct.x < 0:
+                    pjct.x = float(800)
+                elif pjct.x > 800:
+                    pjct.x = float(0)
+                if pjct.y < 0:
+                    pjct.y = float(600)
+                elif pjct.y > 600:
+                    pjct.y = float(0)
 
             #delete_projectieles
             plist = []
-            for i in range(len(self.pjct)):
-                if vec_length(self.pjct[i].vel) < 0.4:
-                    plist.append(i)
+            for pjct in self.pjct:
+                if vec_length(pjct.vel) < 0.4:
+                    plist.append(pjct)
             for i in range(len(plist)):
                 del plist[i]
                 del self.pjct[i]
@@ -139,7 +145,6 @@ class Game:
 
     def newStage(self):
         self.stage += 1
-        self.pjct = []
         newAstr = int(self.stage * 1.5 + 4)
         for i in range(newAstr):
             side = i % 4
@@ -159,22 +164,21 @@ class Game:
         else:
             self.highscore_input()
 
-    def hit(self, p, a):
+    def hit(self, pjct, astr):
         points = 0
         plist = []
         alist = []
-        if len(p) * len(a) > 0:
-            for i in range(len(p)):
-                for j in range(len(a)):
-                    if dist(p[i].x, a[j].x, p[i].y, a[j].y) < a[j].size * 10 + 1:
-                        plist.append(i)
-                        split_a = a[j].split()
-                        if split_a is not None:
-                            a.append(split_a)
-                            points += 100 * (split_a.size + 1)
-                        else:
-                            alist.append(j)
-                            points += 100
+        for i,p in enumerate(pjct):
+            for j,a in enumerate(astr):
+                if dist(p.x, a.x, p.y, a.y) < a.size * 10 + 1:
+                    plist.append(i)
+                    split_a = a.split()
+                    if split_a is not None:
+                        astr.append(split_a)
+                        points += 100 * (split_a.size + 1)
+                    else:
+                        alist.append(j)
+                        points += 100
 
         for i in uniq(plist)[::-1]:
             del self.pjct[i]
@@ -186,11 +190,10 @@ class Game:
     
     def collision(self):
         hit = False
-        if len(self.astr) > 0:
-            for i in range(len(self.astr)):
-                di = dist(self.x, self.astr[i].x, self.y, self.astr[i].y)
-                if di < 4 + self.astr[i].size * 10:
-                    hit = True
+        for i in range(len(self.astr)):
+            di = dist(self.x, self.astr[i].x, self.y, self.astr[i].y)
+            if di < 4 + self.astr[i].size * 10:
+                hit = True
         return hit
     
     def shoot(self):

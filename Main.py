@@ -25,11 +25,11 @@ def draw_game():
 
 
                 if len(game.astr) > 0:
-                        for i in range(len(game.astr)):
-                                pygame.draw.circle(screen, (255, 255, 255), (int(game.astr[i].x), int(game.astr[i].y)), game.astr[i].size * 10, 2)
+                        for astr in game.astr:
+                                pygame.draw.circle(screen, (255, 255, 255), (int(astr.x), int(astr.y)), astr.size * 10, 2)
                 if len(game.pjct) > 0:
-                        for i in range(len(game.pjct)):
-                                pygame.draw.circle(screen, (255, 255, 255), (int(game.pjct[i].x), int(game.pjct[i].y)), 2, 0)
+                        for pjct in game.pjct:
+                                pygame.draw.circle(screen, (255, 255, 255), (int(pjct.x), int(pjct.y)), 2, 0)
                 screen.blit(infofont.render("Points: {}".format(game.points), 1, (255, 255, 0)), (20, 20))
                 screen.blit(infofont.render("Shield: {}".format(game.shield), 1, (255, 255, 0)), (20, 35))
                 screen.blit(infofont.render("Stage: {}".format(game.stage), 1, (255, 255, 0)), (20, 50))
@@ -77,22 +77,21 @@ icon = io.BytesIO(base64.b64decode(icon))
 icon = pygame.image.load(icon)
 pygame.display.set_icon(icon)
 pygame.display.set_caption('Astroid')
+
 screen = pygame.display.set_mode((800, 600))
-# initialize font; must be called after 'pygame.init()' to avoid 'Font not Initialized' error
+
 infofont = pygame.font.SysFont("monospace", 15)
 warningfont = pygame.font.SysFont("monospace", 30)
 
-done = False
-
+running = True
 game = Game()
-
 clock = pygame.time.Clock()
 
-while not done:
+while running:
         events = pygame.event.get()
         for event in events:
                 if event.type == pygame.QUIT:
-                        done = True
+                        running = False
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
                         game.toggle_pause()
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE and not game.dead:
