@@ -93,3 +93,4 @@ ENV/
 __pycache__/
 .vscode
 highscore.txt
+.vscode/settings.json
