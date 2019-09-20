@@ -5,16 +5,16 @@ import base64
 import io
 
 def draw_game():
-        if game.state == 0:
-                game.textinput = pygame_textinput.TextInput()
-                pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(0, 0, 800, 600))
-
+        if game.state == 0: # Main menu
+                game.textinput = pygame_textinput.TextInput(text_color = (255,255,254), cursor_color = (255,255,255), max_string_length = 13, font_family = "monospace")
+                
+                pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(0, 0, W, H))
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(360, 280, 80, 40))
                 screen.blit(infofont.render("MENU", 1, (255, 255, 255)), (381, 291))
 
-        elif game.state == 1:
+        elif game.state == 1: # Game running
                 screen.fill((0, 10, 20))
-                #Ship drawing
+                # Draw Ship
                 pygame.draw.polygon(screen, (255, 255, 255), game.Ship_pointlist(), 1)
                 if game.thrust_counter > 9:
                         game.thrust_counter = 0
@@ -22,50 +22,49 @@ def draw_game():
                         pygame.draw.polygon(screen, (255, 255, 255), game.Ship_thrust_pointlist(), 1)
                 game.thrust_counter += 1
 
+                # Draw Astroids and Projectiles
+                for astr in game.astr:
+                        pygame.draw.circle(screen, (255, 255, 255), (int(astr.x), int(astr.y)), astr.size * 10, 2)
+                for pjct in game.pjct:
+                        pygame.draw.circle(screen, (255, 255, 255), (int(pjct.x), int(pjct.y)), 2, 0)
 
-
-                if len(game.astr) > 0:
-                        for astr in game.astr:
-                                pygame.draw.circle(screen, (255, 255, 255), (int(astr.x), int(astr.y)), astr.size * 10, 2)
-                if len(game.pjct) > 0:
-                        for pjct in game.pjct:
-                                pygame.draw.circle(screen, (255, 255, 255), (int(pjct.x), int(pjct.y)), 2, 0)
+                # Info
                 screen.blit(infofont.render("Points: {}".format(game.points), 1, (255, 255, 0)), (20, 20))
                 screen.blit(infofont.render("Shield: {}".format(game.shield), 1, (255, 255, 0)), (20, 35))
                 screen.blit(infofont.render("Stage: {}".format(game.stage), 1, (255, 255, 0)), (20, 50))
 
                 if game.incoming_astroids:
                         size = warningfont.size("!Incoming Astroids!")
-                        screen.blit(warningfont.render("!Incoming Astroids!", 1, (255, 0, 0)), (400-size[0]//2, 300-size[1]//2))
+                        screen.blit(warningfont.render("!Incoming Astroids!", 1, (255, 0, 0)), (W//2 - size[0]//2, H//2 - size[1]//2))
                 
-        elif game.state == 2:
+        elif game.state == 2: # Pause
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(360, 280, 80, 40))
                 screen.blit(infofont.render("PAUSE", 1, (255, 255, 255)), (377, 291))
 
-        if game.state == 2 or game.state == 0:
+        if game.state == 2 or game.state == 0: # Score and controls rendering. Both on menu and pause
+                # Controls
+                controls = ["Controls:","Thrust: W or Up Arrow","Turn: A and D or","      Left and Right Arrows","Shoot: Spacebar","Pause: P","Exit Game/New Game: ESC","Sumbmit Score: Enter"]
+                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(260, 400, 300, 15+15*len(controls)))
+                for i,text in enumerate(controls):
+                        screen.blit(infofont.render(text, 1, (255, 255, 255)), (270, 405 + i * 15))
+
+                # Scores
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(570, 10, 210, 40 + 15 * len(game.scores)))
-                screen.blit(infofont.render("Highscores:", 1, (255, 255, 0)), (590, 20))
-                for i, j in enumerate(game.scores):
-                        screen.blit(infofont.render(str(j['Name']) + ': ' + str(j['Score']) + ' at ' + str(j['Stage']), 1, (255, 255, 0)), (590, 35 + i * 15))
-
-                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(260, 400, 300, 135))
-                screen.blit(infofont.render("Controls:", 1, (255, 255, 255)), (270, 405))
-                screen.blit(infofont.render("Thrust: W or Up Arrow", 1, (255, 255, 255)), (280, 420))
-                screen.blit(infofont.render("Turn: A and D or", 1, (255, 255, 255)), (280, 435))
-                screen.blit(infofont.render("      Left and Right Arrows", 1, (255, 255, 255)), (280, 450))
-                screen.blit(infofont.render("Shoot: Spacebar", 1, (255, 255, 255)), (280, 465))
-                screen.blit(infofont.render("Pause: P", 1, (255, 255, 255)), (280, 480))
-                screen.blit(infofont.render("Exit Game/New Game: ESC", 1, (255, 255, 255)), (280, 495))
-                screen.blit(infofont.render("Sumbmit Score: Enter", 1, (255, 255, 255)), (280, 510))
-
+                screen.blit(infofont.render("Online Highscores:", 1, (255, 255, 0)), (590, 20))
+                for i, score in enumerate(game.scores):
+                        screen.blit(infofont.render(str(score['Name']) + ': ' + str(score['Score']) + ' at ' + str(score['Stage']), 1, (255, 255, 0)), (590, 35 + i * 15))
+                
                 pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(570, 400, 210, 30 + 15 * len(game.localScores)))
                 screen.blit(infofont.render("Local Highscores:", 1, (255, 255, 0)), (590, 405))
                 for i, j in enumerate(game.localScores):
                         screen.blit(infofont.render(str(j['Name']) + ': ' + str(j['Score']) + ' at ' + str(j['Stage']), 1, (255, 255, 0)), (590, 420 + i * 15))
 
-        elif game.state == 3:
-                screen.fill((225, 225, 225))
-                screen.blit(game.textinput.get_surface(), (10, 10))
+        elif game.state == 3: # Game over, Score submission
+                size = warningfont.size("Game Over")
+                charsize = warningfont.size(" ")
+                screen.blit(warningfont.render("Game Over", 1, (255, 255, 0)), (W//2-size[0]//2, H//3-size[1]//2))
+                pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(W//2-150, 340, 300, size[1]+20))
+                screen.blit(game.textinput.get_surface(), (W//2 - (charsize[0]*len(game.textinput.get_text()))//2,340+10))
                 if game.textinput.update(events) and len(game.textinput.get_text()) > 0:
                         game.save_highscore(game.textinput.get_text())
                 
@@ -78,10 +77,12 @@ icon = pygame.image.load(icon)
 pygame.display.set_icon(icon)
 pygame.display.set_caption('Astroid')
 
-screen = pygame.display.set_mode((800, 600))
+W, H = 800, 600
+
+screen = pygame.display.set_mode((W, H))
 
 infofont = pygame.font.SysFont("monospace", 15)
-warningfont = pygame.font.SysFont("monospace", 30)
+warningfont = pygame.font.SysFont("monospace", 35)
 
 running = True
 game = Game()

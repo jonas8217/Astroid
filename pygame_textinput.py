@@ -21,13 +21,14 @@ class TextInput:
     def __init__(
             self,
             initial_string="",
-            font_family="monospace",
+            font_family="",
             font_size=35,
             antialias=True,
             text_color=(0, 0, 0),
             cursor_color=(0, 0, 1),
             repeat_keys_initial_ms=400,
-            repeat_keys_interval_ms=35):
+            repeat_keys_interval_ms=35,
+            max_string_length=1000):
         """
         :param initial_string: Initial text to be displayed
         :param font_family: name or list of names for font (see pygame.font.match_font for precise format)
@@ -36,13 +37,15 @@ class TextInput:
         :param text_color: Color of text (duh)
         :param cursor_color: Color of cursor
         :param repeat_keys_initial_ms: Time in ms before keys are repeated when held
-        :param repeat_keys_interval_ms: Interval between key press repetition when helpd
+        :param repeat_keys_interval_ms: Interval between key press repetition when held
+        :param max_string_length: Allowed length of text
         """
         
         # Text related vars:
         self.antialias = antialias
         self.text_color = text_color
         self.font_size = font_size
+        self.max_string_length = max_string_length
         self.input_string = initial_string  # Inputted text
 
         if not os.path.isfile(font_family):
@@ -109,7 +112,7 @@ class TextInput:
                 elif event.key == pl.K_HOME:
                     self.cursor_position = 0
 
-                else:
+                elif len(self.input_string) < self.max_string_length:
                     # If no special key is pressed, add unicode of key to input_string
                     self.input_string = (
                         self.input_string[:self.cursor_position]
