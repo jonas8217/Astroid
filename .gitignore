@@ -91,6 +91,5 @@ ENV/
 # Local project files I don't want to push:
 
 __pycache__/
-.vscode
+.vscode/
 highscore.txt
-.vscode/settings.json
