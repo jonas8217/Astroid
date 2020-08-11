@@ -1,5 +1,5 @@
 # Astroid
-My version of the arcade-game Asteroid using pygame
+My version of the Asteroids arcade game created using pygame
 
 ![alt text](https://i.imgur.com/GOf1tz6.png)
 
